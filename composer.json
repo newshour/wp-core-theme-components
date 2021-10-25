@@ -1,0 +1,17 @@
+{
+    "name": "newshour/wp-core-theme-components",
+    "description": "NewsHour Core Theme components",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [],
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^1.4",
+        "timber/timber": "^1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "NewsHour\\WPCoreThemeComponents\\": "src"
+        }
+    }
+}
