@@ -120,6 +120,7 @@ class BaseContext implements ArrayAccess, Context, Countable {
     public function offsetGet($offset) {
 
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
+
     }
 
     /**
