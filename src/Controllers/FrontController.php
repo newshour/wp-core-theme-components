@@ -13,7 +13,6 @@ use ReflectionException;
 
 use App\Themes\CoreTheme\Contracts\Context;
 use App\Themes\CoreTheme\Contexts\ContextFactory;
-use App\Themes\CoreTheme\Http\Controllers\Controller;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
