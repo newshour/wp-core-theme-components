@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-namespace NewsHour\WPCoreThemeComponents\Db;
+namespace NewsHour\WPCoreThemeComponents\Query;
 
 use WP_Query;
 
@@ -411,7 +411,7 @@ final class PostsResultSet implements ResultSet {
      */
     private function getPostTypeValue($postClass): string {
 
-        $postClasses = apply_filters('Timber\PostClassMap'. []);
+        $postClasses = apply_filters('Timber\PostClassMap', []);
 
         if (is_array($postClasses)) {
 

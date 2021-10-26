@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-namespace NewsHour\WPCoreThemeComponents\Db;
+namespace NewsHour\WPCoreThemeComponents\Query;
 
 /**
  * ResultSets provide a fluent interface to fetching data.
