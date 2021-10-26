@@ -11,8 +11,8 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionException;
 
-use App\Themes\CoreTheme\Contracts\Context;
-use App\Themes\CoreTheme\Contexts\ContextFactory;
+use NewsHour\WPCoreThemeComponents\Contexts\Context;
+use NewsHour\WPCoreThemeComponents\Contexts\ContextFactory;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
