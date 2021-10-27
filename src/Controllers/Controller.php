@@ -36,7 +36,7 @@ abstract class Controller {
 
         $expires = isset($kwargs['expires']) && $kwargs['expires'] > -1 ? $kwargs['expires'] : false;
         $cacheMode = empty($kwargs['cache_mode']) ? Loader::CACHE_USE_DEFAULT : $kwargs['cache_mode'];
-        $statusCode = empty($kwargs['status_code']) ? Response::HTTP_OK : $kwargs['status_code'];
+        $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
 
         $headers = array_merge(
             $this->getQueuedHeaders(),
@@ -93,7 +93,7 @@ abstract class Controller {
     protected function renderJson(array $data, Context $context, array $kwargs = []): void {
 
         $options = empty($kwargs['json_encode_options']) ? 0 : $kwargs['json_encode_options'];
-        $statusCode = empty($kwargs['status_code']) ? Response::HTTP_OK : $kwargs['status_code'];
+        $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
         $headers = empty($kwargs['headers']) ? [] : $kwargs['headers'];
 
         // Add CORS headers.
