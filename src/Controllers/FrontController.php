@@ -11,6 +11,10 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionException;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
+use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 use NewsHour\WPCoreThemeComponents\Contexts\ContextFactory;
 
@@ -61,6 +65,27 @@ final class FrontController {
 
             if ($context === null) {
                 $context = ContextFactory::default();
+            }
+
+            // Start processing annotations.
+            AnnotationRegistry::registerLoader('class_exists');
+            $reader = new AnnotationReader();
+
+            // HttpMethods annotation.
+            $httpMethods = $reader->getMethodAnnotation(
+                $reflectedClass->getMethod($method),
+                HttpMethods::class
+            );
+
+            $request = $context->getRequest();
+
+            // Default are "safe" HTTP methods. Allow only if annotation value defines unsafe methods it.
+            if (!$request->isMethodSafe() || ($httpMethods !== null && !$httpMethods->validateMethods($context->getRequest()))) {
+                \wp_die(
+                    '405 Method Not Allowed',
+                    'Error',
+                    ['response' => 405]
+                );
             }
 
             $instance = $reflectedClass->newInstance($context);
