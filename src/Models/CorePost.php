@@ -50,6 +50,19 @@ abstract class CorePost extends Post {
     }
 
     /**
+     * Pulls fresh category data. Heads up, this incurs a db hit.
+     *
+     * @return CorePost
+     */
+    public function refreshCategories(): CorePost {
+
+        $this->storage['categories'] = null;
+        $this->categories();
+        return $this;
+
+    }
+
+    /**
      * Overrides parent::tags() so that we store the data.
      *
      * @return array
@@ -61,6 +74,19 @@ abstract class CorePost extends Post {
         }
 
         return $this->storage['tags'];
+
+    }
+
+    /**
+     * Pulls fresh tag data. Heads up, this incurs a db hit.
+     *
+     * @return CorePost
+     */
+    public function refreshTags(): CorePost {
+
+        $this->storage['tags'] = null;
+        $this->tags();
+        return $this;
 
     }
 

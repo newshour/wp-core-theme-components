@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 
 /**
@@ -60,7 +61,7 @@ abstract class Controller {
             );
         }
 
-        if (!has_key('Content-Type', $headers)) {
+        if (!Utilities::hasKey('Content-Type', $headers)) {
             $headers['Content-Type'] = 'text/html; charset=' . get_option('blog_charset');
         }
 
@@ -99,7 +100,7 @@ abstract class Controller {
         // Add CORS headers.
         $this->addCorsHeaders($context->getRequest(), $headers);
 
-        if (!has_key('Content-Type', $headers)) {
+        if (!Utilities::hasKey('Content-Type', $headers)) {
             $headers['Content-Type'] = 'application/json; charset=' . get_option('blog_charset');
         }
 
@@ -152,7 +153,7 @@ abstract class Controller {
 
             $allowed = '*';
 
-        } else if (!is_null($clientOrigin) && in_array($clientOrigin, $origins)) {
+        } elseif (!is_null($clientOrigin) && in_array($clientOrigin, $origins)) {
 
             $allowed = $clientOrigin;
 
