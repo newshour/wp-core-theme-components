@@ -7,6 +7,7 @@
     "require": {
         "php": ">=7.4",
         "composer/installers": "^1.4",
+        "doctrine/annotations": "^1.13",
         "symfony/http-foundation": "^5.2",
         "timber/timber": "^1.19"
     },
