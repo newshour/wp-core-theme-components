@@ -78,9 +78,14 @@ final class FrontController {
             );
 
             $request = $context->getRequest();
+            $allowed = $request->isMethodSafe();
 
             // Default are "safe" HTTP methods. Allow only if annotation value defines unsafe methods it.
-            if (!$request->isMethodSafe() || ($httpMethods !== null && !$httpMethods->validateMethods($context->getRequest()))) {
+            if ($httpMethods !== null) {
+                $allowed = $httpMethods->validateMethods($request);
+            }
+
+            if (!$allowed) {
                 \wp_die(
                     '405 Method Not Allowed',
                     'Error',
