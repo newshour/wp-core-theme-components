@@ -1,3 +1,7 @@
 # Composer
 vendor/*
 !vendor/.gitkeep
+
+#phpDocumentor
+.phpdoc/*
+web/docs/*
