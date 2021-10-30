@@ -2,6 +2,9 @@
 vendor/*
 !vendor/.gitkeep
 
-#phpDocumentor
+# phpDocumentor
 .phpdoc/*
 web/docs/*
+
+# Misc
+*.cache
