@@ -13,6 +13,10 @@ use ReflectionException;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\PsrCachedReader;
+
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
@@ -69,7 +73,16 @@ final class FrontController {
 
             // Start processing annotations.
             AnnotationRegistry::registerLoader('class_exists');
-            $reader = new AnnotationReader();
+            $debug = defined('WP_DEBUG') ? WP_DEBUG : false;
+
+            $reader = new PsrCachedReader(
+                new AnnotationReader(),
+                new PhpArrayAdapter(
+                    __DIR__ . '/.cache/annotations.cache',
+                    new FilesystemAdapter()
+                ),
+                $debug
+            );
 
             // HttpMethods annotation.
             $httpMethods = $reader->getMethodAnnotation(
