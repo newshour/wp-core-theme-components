@@ -26,14 +26,14 @@ use NewsHour\WPCoreThemeComponents\Contexts\Context;
 abstract class Controller {
 
     /**
-     * Renders the view as HTML
+     * Renders the view as HTML and returns a Response object.
      *
      * @param string $template
      * @param Context $context
      * @param array $kwargs
-     * @return void
+     * @return Response|null
      */
-    protected function render(string $template, Context $context, array $kwargs = []): void {
+    protected function render(string $template, Context $context, array $kwargs = []): ?Response {
 
         $expires = isset($kwargs['expires']) && $kwargs['expires'] > -1 ? $kwargs['expires'] : false;
         $cacheMode = empty($kwargs['cache_mode']) ? Loader::CACHE_USE_DEFAULT : $kwargs['cache_mode'];
@@ -70,10 +70,8 @@ abstract class Controller {
             // Build the response.
             $response = new Response($content, $statusCode, $headers);
             $response->prepare($context->getRequest());
-            $response->send();
 
-            // We're all done. Wordpress will run its `shutdown` action on exit.
-            exit;
+            return $response;
 
         } catch (InvalidArgumentException $iae) {
 
@@ -84,14 +82,14 @@ abstract class Controller {
     }
 
     /**
-     * Render to JSON.
+     * Renders the view as JSON and returns a Response object.
      *
      * @param array $data
      * @param Context $context
      * @param array $kwargs
-     * @return void
+     * @return Response|null
      */
-    protected function renderJson(array $data, Context $context, array $kwargs = []): void {
+    protected function renderJson(array $data, Context $context, array $kwargs = []): ?Response {
 
         $options = empty($kwargs['json_encode_options']) ? 0 : $kwargs['json_encode_options'];
         $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
@@ -117,10 +115,8 @@ abstract class Controller {
             // Build the response.
             $response = new Response($content, $statusCode, $headers);
             $response->prepare($context->getRequest());
-            $response->send();
 
-            // We're all done. Wordpress will run its `shutdown` action on exit.
-            exit;
+            return $response;
 
         } catch (InvalidArgumentException $iae) {
 
