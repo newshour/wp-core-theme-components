@@ -57,6 +57,9 @@ final class ManagerService {
 
             self::$instance = new ManagerService(RequestFactory::get());
 
+            // Add the bootstrap manager.
+            self::$instance->add(Bootstrap::class);
+
         }
 
         return self::$instance;
@@ -78,11 +81,22 @@ final class ManagerService {
             return $this;
         }
 
-        array_unshift($args, $this->request);
+        if ($reflector->hasMethod('__construct')) {
 
-        $this->managers->attach(
-            $reflector->newInstanceArgs($args)
-        );
+            array_unshift($args, $this->request);
+
+            $this->managers->attach($reflector->newInstanceArgs($args));
+
+        } else {
+
+            if (count($args) > 0) {
+                trigger_error((string)$className . ' must declare a constructor first to pass arguments.', E_USER_WARNING);
+                return $this;
+            }
+
+            $this->managers->attach($reflector->newInstance());
+
+        }
 
         return $this;
 
