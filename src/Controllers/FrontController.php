@@ -6,9 +6,7 @@
 namespace NewsHour\WPCoreThemeComponents\Controllers;
 
 use Exception;
-
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionException;
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -19,8 +17,11 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
+use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
+use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
-use NewsHour\WPCoreThemeComponents\Contexts\ContextFactory;
+use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
@@ -37,7 +38,7 @@ final class FrontController {
      *
      * @param  string  $className
      * @param string $method
-     * @param  Context $context
+     * @param  Context $context Deprecated
      * @return Controller
      */
     public static function run(string $controllerClass, string $method, Context $context = null) {
@@ -67,10 +68,6 @@ final class FrontController {
                 );
             }
 
-            if ($context === null) {
-                $context = ContextFactory::default();
-            }
-
             // Start processing annotations.
             AnnotationRegistry::registerLoader('class_exists');
             $debug = defined('WP_DEBUG') ? WP_DEBUG : false;
@@ -78,11 +75,25 @@ final class FrontController {
             $reader = new PsrCachedReader(
                 new AnnotationReader(),
                 new PhpArrayAdapter(
-                    __DIR__ . '/.cache/annotations.cache',
+                    dirname(__DIR__, 2) . '/cache/app/annotations.php',
                     new FilesystemAdapter()
                 ),
                 $debug
             );
+
+            // LoginRequired annotation.
+            $loginRequired = $reader->getMethodAnnotation(
+                $reflectedClass->getMethod($method),
+                LoginRequired::class
+            );
+
+            if ($loginRequired !== null && !$loginRequired->validateUser()) {
+                \wp_die(
+                    '403 Access Forbidden',
+                    'Error',
+                    ['response' => 403]
+                );
+            }
 
             // HttpMethods annotation.
             $httpMethods = $reader->getMethodAnnotation(
@@ -90,7 +101,7 @@ final class FrontController {
                 HttpMethods::class
             );
 
-            $request = $context->getRequest();
+            $request = RequestFactory::get();
             $allowed = $request->isMethodSafe();
 
             // Default are "safe" HTTP methods. Allow only if annotation value defines unsafe methods it.
@@ -106,9 +117,34 @@ final class FrontController {
                 );
             }
 
-            $instance = $reflectedClass->newInstance($context);
+            // Apply container filters.
+            $container = apply_filters('core_theme_container', ContainerFactory::get());
 
-            return (new ReflectionMethod($controllerClass, $method))->invoke($instance);
+            // Run the controller and get the Response obj.
+            $response = call_user_func([
+                $container->get($controllerClass),
+                $method
+            ]);
+
+            if (!($response instanceof Response)) {
+                \wp_die(
+                    sprintf(
+                        '<b>%s</b> did not return a Response object. Did you forget the <i>return</i> statement?',
+                        $controllerClass . '::' . $method
+                    ),
+                    'Error',
+                    ['response' => 400]
+                );
+            }
+
+            // Apply any post controller action filters.
+            $response = apply_filters('core_theme_response', $response);
+
+            // Send the response.
+            $response->send();
+
+            // We're all done. Wordpress will run its `shutdown` action on exit.
+            exit;
 
         } catch (ReflectionException $re) {
 
