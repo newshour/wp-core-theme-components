@@ -6,11 +6,10 @@
 
 namespace NewsHour\WPCoreThemeComponents\Containers;
 
-use NewsHour\WPCoreThemeComponents\Components\Meta\MetaFactory;
-use NewsHour\WPCoreThemeComponents\Components\Meta\Schemas\SchemaFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Request;
 
+use NewsHour\WPCoreThemeComponents\Components\Meta\MetaFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 use NewsHour\WPCoreThemeComponents\Contexts\ContextFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\PageContext;

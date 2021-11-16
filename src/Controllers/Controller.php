@@ -8,12 +8,13 @@ namespace NewsHour\WPCoreThemeComponents\Controllers;
 
 use InvalidArgumentException;
 
-use Timber\Loader;
-use Timber\Timber;
-
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
+use Timber\Loader;
+use Timber\Timber;
 
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
@@ -78,6 +79,27 @@ abstract class Controller {
             trigger_error($iae);
 
         }
+
+    }
+
+    /**
+     * Renders a file for download.
+     *
+     * @param mixed $file
+     * @param string $filename Optional
+     * @param string $contentDisposition Optional, default is attachment.
+     * @return BinaryFileResponse|null
+     */
+    public function renderFile($file, $filename = '', $contentDisposition = 'attachment'): ?BinaryFileResponse {
+
+        if (!is_file($file)) {
+            wp_die('File Not Found', 'File Not Found', ['response' => 404]);
+        }
+
+        $response = new BinaryFileResponse($file);
+        $response->setContentDisposition($contentDisposition, empty($filename) ? basename($file) : $filename);
+
+        return $response;
 
     }
 
