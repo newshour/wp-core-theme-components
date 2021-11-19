@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Build composer deps
-      - uses: php-actions/composer@v5
+        uses: php-actions/composer@v5
         with:
           php_version: 7.4
           args: --optimize-autoloader
