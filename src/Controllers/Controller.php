@@ -27,7 +27,10 @@ use NewsHour\WPCoreThemeComponents\Contexts\Context;
 abstract class Controller {
 
     /**
-     * Renders the view as HTML and returns a Response object.
+     * Renders the view as HTML and returns a Response object. Timber template caching parameters
+     * can be passed via the $kwargs argument.
+     *
+     * kwargs: (string) cache_mode, (int) expires, (array) headers, (int) status_code
      *
      * @param string $template
      * @param Context $context
@@ -105,6 +108,8 @@ abstract class Controller {
 
     /**
      * Renders the view as JSON and returns a Response object.
+     *
+     * kwargs: (int) json_encode_options, (array) headers, (int) status_code
      *
      * @param array $data
      * @param Context $context
