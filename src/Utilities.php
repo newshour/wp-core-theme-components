@@ -11,6 +11,9 @@ use Exception;
 use Carbon\Carbon;
 
 use Timber\Image;
+use Timber\TextHelper;
+
+use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
 
 /**
  * Utility methods.
@@ -185,6 +188,25 @@ final class Utilities {
         }
 
         return false;
+
+    }
+
+    /**
+     * Builds a static assets URL. The constant ASSETS_URL should be set to generate
+     * absolute URLs.
+     *
+     * @param string $path The relative path of the asset.
+     * @return string
+     */
+    public static function static_url($path) {
+
+        if (defined('ASSETS_URL')) {
+            $_path = TextHelper::starts_with($path, '/') ? $path : '/' . $path;
+            return rtrim(trim(ASSETS_URL), '/') . PackageFactory::get()->getUrl($_path);
+        }
+
+        return PackageFactory::get()->getUrl($path);
+
     }
 
     /**
@@ -203,7 +225,7 @@ final class Utilities {
         }
 
         if (empty($timezone)) {
-            $timezone = \wp_timezone();
+            $timezone = wp_timezone();
         }
 
         if (empty($value)) {
