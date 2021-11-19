@@ -198,7 +198,7 @@ final class Utilities {
      * @param string $path The relative path of the asset.
      * @return string
      */
-    public static function static_url($path) {
+    public static function staticUrl($path) {
 
         if (defined('ASSETS_URL')) {
             $_path = TextHelper::starts_with($path, '/') ? $path : '/' . $path;
