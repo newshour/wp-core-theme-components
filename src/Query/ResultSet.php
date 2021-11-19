@@ -43,6 +43,14 @@ interface ResultSet {
     public function get(): array;
 
     /**
+     * Retrieve the first result by primary key.
+     *
+     * @param int $pk
+     * @return array
+     */
+    public function pk($pk): array;
+
+    /**
      * Filter a query by keyword args. See WP_Query documentation for a full
      * list of args.
      *
@@ -76,13 +84,6 @@ interface ResultSet {
     public function shuffle($andSlice = 0): array;
 
     /**
-     * Retrieve results with any status.
-     *
-     * @return ResultSet
-     */
-    public function any(): ResultSet;
-
-    /**
      * Set ordering to ASC.
      *
      * @return ResultSet
@@ -100,11 +101,19 @@ interface ResultSet {
      * Excludes records by ID. If $parent is true, only parent IDs are
      * excluded.
      *
-     * @param array $excludeIds
+     * @param array $ids
      * @param boolean $parent
      * @return ResultSet
      */
-    public function exclude(array $excludeIds, $parent = false): ResultSet;
+    public function exclude(array $ids, $parent = false): ResultSet;
+
+    /**
+     * Includes records by ID.
+     *
+     * @param array $ids
+     * @return ResultSet
+     */
+    public function include(array $ids): ResultSet;
 
     /**
      * Retrieve the latest records by date.
@@ -119,13 +128,6 @@ interface ResultSet {
      * @return ResultSet
      */
     public function limit($limit): ResultSet;
-
-    /**
-     * Sets the `fields` parameter to `ids`.
-     *
-     * @return ResultSet
-     */
-    public function ids(): ResultSet;
 
     /**
      * Sets the `order` parameter. Default is `DESC`.

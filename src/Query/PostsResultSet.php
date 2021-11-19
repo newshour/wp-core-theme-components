@@ -1,12 +1,14 @@
 <?php
 
 /**
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace NewsHour\WPCoreThemeComponents\Query;
 
 use WP_Query;
+
+use Carbon\Carbon;
 
 use Timber\PostQuery;
 
@@ -22,7 +24,7 @@ use Timber\PostQuery;
  * or even more concise:
  *
  * ```
- * Model::objects()->latest()->get();
+ * Model::objects()->latest(10)->get();
  * ```
  *
  * @final
@@ -78,9 +80,9 @@ final class PostsResultSet implements ResultSet {
      *
      * @param string $postClass
      * @param array $params
-     * @return ResultSet
+     * @return self
      */
-    public static function factory($postClass = '', array $params = []): ResultSet {
+    public static function factory($postClass = '', array $params = []): self {
 
         return new PostsResultSet($postClass, $params);
 
@@ -91,8 +93,8 @@ final class PostsResultSet implements ResultSet {
     // ------------------------------------------------------------------------
 
     /**
-     * Returns the result set array based on the set query params.
-     * This method will hit the database.
+     * Returns the result set array based on the set query params. This method
+     * will hit the database.
      *
      * @category Database Read
      * @return array
@@ -118,7 +120,7 @@ final class PostsResultSet implements ResultSet {
 
         }
 
-        // If 'fields' was passed as is not set to 'all', we need to use the WP_Query class.
+        // If 'fields' was passed and is not set to 'all', we need to use the WP_Query class.
         if (!empty($this->queryParams['fields']) && strcasecmp($this->queryParams['fields'], 'all') != 0) {
 
             $this->data = (new WP_Query($this->queryParams))->get_posts();
@@ -134,6 +136,70 @@ final class PostsResultSet implements ResultSet {
         }
 
         return $this->data;
+
+    }
+
+    /**
+     * Returns the first result by primary key (post ID). This method will
+     * hit the database.
+     *
+     * @param int $pk
+     * @return array
+     */
+    public function pk($pk): array {
+
+        $this->queryParams = [
+            'p' => is_numeric($pk) ? (int) $pk : 0
+        ];
+
+        return $this->limit(1)->get();
+
+    }
+
+    /**
+     * Alias for pk(int $pk), but also accepts an array of IDs.
+     *
+     * @param array|int $pid The post ID(s).
+     * @return array
+     */
+    public function id($pid): array {
+
+        if (is_array($pid) && count($pid) > 0) {
+
+            $clean = array_filter($pid, 'is_numeric');
+            $cleanCount = count($clean);
+
+            if ($cleanCount == 0) {
+                return [];
+            }
+
+            if ($cleanCount == 1) {
+                return $this->pk($clean[0]);
+            }
+
+            $this->queryParams['post__in'] = $clean;
+            $this->queryParams['ignore_sticky_posts'] = true;
+
+            return $this->get();
+
+        }
+
+        if (is_numeric($pid)) {
+            return $this->pk($pid);
+        }
+
+        return [];
+
+    }
+
+    /**
+     * Returns all records in the collection. This method will hit the database.
+     *
+     * @return array
+     */
+    public function all(): array {
+
+        return $this->limit(-1)->get();
 
     }
 
@@ -201,9 +267,9 @@ final class PostsResultSet implements ResultSet {
     /**
      * Retrieve results with any status.
      *
-     * @return ResultSet
+     * @return self
      */
-    public function any(): ResultSet {
+    public function any(): self {
 
         $this->queryParams['post_status'] = 'any';
         return $this;
@@ -211,9 +277,9 @@ final class PostsResultSet implements ResultSet {
     }
 
     /**
-     * @return ResultSet
+     * @return self
      */
-    public function asc(): ResultSet {
+    public function asc(): self {
 
         return $this->order('ASC');
 
@@ -224,9 +290,9 @@ final class PostsResultSet implements ResultSet {
      * cache forever.
      *
      * @param int $seconds
-     * @return ResultSet
+     * @return self
      */
-    public function cache($seconds): ResultSet {
+    public function cache($seconds): self {
 
         $this->cacheInSeconds = (int)$seconds < 0 ? -1 : (int)$seconds;
         return $this;
@@ -236,18 +302,44 @@ final class PostsResultSet implements ResultSet {
     /**
      * Sets the cache to store forever.
      *
-     * @return ResultSet
+     * @return self
      */
-    public function cacheForever(): ResultSet {
+    public function cacheForever(): self {
 
         return $this->cache(0);
 
     }
 
     /**
-     * @return ResultSet
+     * Filter by date range. The default is to use 'inclusive' dates.
+     *
+     * @param Carbon $start
+     * @param Carbon|null $end Optional
+     * @param boolean $inclusive Optional, default is true.
+     * @return self
      */
-    public function desc(): ResultSet {
+    public function dateRange(Carbon $start, Carbon $end = null, $inclusive = true): self {
+
+        $dateQuery = [
+            'inclusive' => (bool) $inclusive,
+            'after' => $start->toIso8601String()
+        ];
+
+        if ($end != null) {
+            $dateQuery['before'] = $end->toIso8601String();
+        }
+
+        $this->queryParams['date_query'] = $dateQuery;
+        $this->limit(-1);
+
+        return $this;
+
+    }
+
+    /**
+     * @return self
+     */
+    public function desc(): self {
 
         return $this->order('DESC');
 
@@ -258,12 +350,23 @@ final class PostsResultSet implements ResultSet {
      *
      * @param array $excludeIds
      * @param boolean $parent If true, excludes by parent ID(s).
-     * @return ResultSet
+     * @return self
      */
-    public function exclude(array $excludeIds, $parent = false): ResultSet {
+    public function exclude(array $ids, $parent = false): self {
+
+        if (count($ids) < 1) {
+            return $this;
+        }
+
+        $clean = array_filter($ids, 'is_numeric');
+
+        if (count($clean) < 1) {
+            return $this;
+        }
 
         $key = $parent ? 'post_parent__not_in' : 'post__not_in';
-        $this->queryParams[$key] = $excludeIds;
+        $this->queryParams[$key] = $clean;
+        $this->limit(-1);
 
         return $this;
 
@@ -277,9 +380,9 @@ final class PostsResultSet implements ResultSet {
      *
      * @see TimberManager
      * @param array $params
-     * @return ResultSet
+     * @return self
      */
-    public function filter(array $params): ResultSet {
+    public function filter(array $params): self {
 
         if (isset($params['post_type'])) {
 
@@ -304,37 +407,11 @@ final class PostsResultSet implements ResultSet {
     }
 
     /**
-     * Fetch the latest entries by post_date.
-     *
-     * @param int $limit Default is `posts_per_page`.
-     * @return ResultSet
-     */
-    public function latest($limit = 0): ResultSet {
-
-        $_limit = empty($limit) ? (int)get_option('posts_per_page') : (int)$limit;
-        return $this->orderBy('post_date')->limit($_limit);
-
-    }
-
-    /**
-     * Set the `posts_per_page` field.
-     *
-     * @param int $limit
-     * @return ResultSet
-     */
-    public function limit($limit): ResultSet {
-
-        $this->queryParams['posts_per_page'] = (int)$limit;
-        return $this;
-
-    }
-
-    /**
      * Sets the `fields` parameter to `ids`.
      *
-     * @return ResultSet
+     * @return self
      */
-    public function ids(): ResultSet {
+    public function idsOnly(): self {
 
         $this->queryParams['fields'] = 'ids';
         return $this;
@@ -342,11 +419,95 @@ final class PostsResultSet implements ResultSet {
     }
 
     /**
+     * Deprectated, use idsOnly() instead.
+     *
+     * @deprecated 1.0.1
+     * @return self
+     */
+    public function ids(): self {
+
+        return $this->idsOnly();
+
+    }
+
+    /**
+     * Fetch results by a list of post IDs.
+     *
+     * @param array $ids A list of post IDs to include.
+     * @param boolean $ignoreStickyPosts Optional
+     * @return self
+     */
+    public function include(array $ids, $parent = false): self {
+
+        if (count($ids) < 1) {
+            return $this;
+        }
+
+        $clean = array_filter($ids, 'is_numeric');
+
+        if (count($clean) < 1) {
+            return $this;
+        }
+
+        $key = $parent ? 'post_parent__in' : 'post__in';
+        $this->queryParams[$key] = $clean;
+        $this->limit(-1);
+
+        return $this;
+
+    }
+
+    /**
+     * Set `ignore_sticky_posts` to true.
+     *
+     * @return self
+     */
+    public function ignoreStickyPosts(): self {
+
+        $this->queryParams['ignore_sticky_posts'] = true;
+        return $this;
+
+    }
+
+    /**
+     * Fetch the latest entries by `post_date`.
+     *
+     * @param int $limit Option, default is `posts_per_page` setting value.
+     * @param bool $ignoreStickyPosts Optional, default is false.
+     * @return self
+     */
+    public function latest($limit = 0, $ignoreStickyPosts = false): self {
+
+        $_limit = empty($limit) ? (int)get_option('posts_per_page') : (int)$limit;
+        $this->orderBy('post_date')->limit($_limit);
+
+        if ($ignoreStickyPosts) {
+            $this->ignoreStickyPosts();
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * Set the `posts_per_page` field.
+     *
+     * @param int $limit
+     * @return self
+     */
+    public function limit($limit): self {
+
+        $this->queryParams['posts_per_page'] = (int)$limit;
+        return $this;
+
+    }
+
+    /**
      * Sets cache expires to indefinite. Same as cache(0).
      *
-     * @return ResultSet
+     * @return self
      */
-    public function nocache(): ResultSet {
+    public function nocache(): self {
 
         return $this->cache(0);
 
@@ -356,9 +517,9 @@ final class PostsResultSet implements ResultSet {
      * Sets the `order` parameter.
      *
      * @param string $order
-     * @return ResultSet
+     * @return self
      */
-    public function order($order = 'DESC'): ResultSet {
+    public function order($order = 'DESC'): self {
 
         $_order = strtoupper($order);
 
@@ -374,9 +535,9 @@ final class PostsResultSet implements ResultSet {
      * Sets the `orderby` value.
      *
      * @param string $by
-     * @return ResultSet
+     * @return self
      */
-    public function orderBy($by): ResultSet {
+    public function orderBy($by): self {
 
         if (!empty($by)) {
             $this->queryParams['orderby'] = $by;
@@ -390,9 +551,9 @@ final class PostsResultSet implements ResultSet {
      * Sets the `paged` parameter and sets `no_found_rows` to false.
      *
      * @param int $num
-     * @return ResultSet
+     * @return self
      */
-    public function page($num): ResultSet {
+    public function page($num): self {
 
         if ((int)$num > -1) {
             $this->queryParams['paged'] = (int)$num;
