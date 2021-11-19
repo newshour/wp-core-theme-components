@@ -6,6 +6,11 @@
 
 namespace NewsHour\WPCoreThemeComponents\Managers;
 
+use Twig\Environment;
+use Twig\TwigFunction;
+
+use NewsHour\WPCoreThemeComponents\Utilities;
+
 /**
  * Bootstraps additional Wordpress settings and functionality needed by
  * the library.
@@ -27,6 +32,7 @@ class Bootstrap implements WordpressManager {
     public function run(): void {
 
         add_filter('admin_init', [$this, 'extendGeneralSettingsPage' ]);
+        add_filter('init', [$this, 'addTwigFunctions']);
 
     }
 
@@ -250,6 +256,27 @@ class Bootstrap implements WordpressManager {
                 'default' => 0
             ]
         );
+
+    }
+
+    /**
+     * Adds common helper functions for access in Twig templates.
+     *
+     * @return void
+     */
+    public function addTwigFunctions(): void {
+
+        // Add static_url function.
+        add_filter('timber/twig', function(Environment $twig) {
+            $twig->addFunction(new TwigFunction('static_url', fn ($path) => Utilities::static_url($path)));
+            return $twig;
+        });
+
+        // Add home_url function.
+        add_filter('timber/twig', function(Environment $twig) {
+            $twig->addFunction(new TwigFunction('home_url', 'home_url'));
+            return $twig;
+        });
 
     }
 
