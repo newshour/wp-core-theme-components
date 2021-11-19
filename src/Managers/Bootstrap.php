@@ -268,7 +268,7 @@ class Bootstrap implements WordpressManager {
 
         // Add static_url function.
         add_filter('timber/twig', function(Environment $twig) {
-            $twig->addFunction(new TwigFunction('static_url', fn ($path) => Utilities::static_url($path)));
+            $twig->addFunction(new TwigFunction('static_url', fn ($path) => Utilities::staticUrl($path)));
             return $twig;
         });
 
