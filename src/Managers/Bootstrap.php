@@ -8,32 +8,29 @@ namespace NewsHour\WPCoreThemeComponents\Managers;
 
 use Twig\Environment;
 use Twig\TwigFunction;
-
 use NewsHour\WPCoreThemeComponents\Utilities;
 
 /**
  * Bootstraps additional Wordpress settings and functionality needed by
  * the library.
  */
-class Bootstrap implements WordpressManager {
-
+class Bootstrap implements WordpressManager
+{
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         return self::class;
-
     }
 
     /**
      * @return void
      */
-    public function run(): void {
-
-        add_filter('admin_init', [$this, 'extendGeneralSettingsPage' ]);
+    public function run(): void
+    {
+        add_filter('admin_init', [$this, 'extendGeneralSettingsPage']);
         add_filter('init', [$this, 'addTwigFunctions']);
-
     }
 
     /**
@@ -41,14 +38,15 @@ class Bootstrap implements WordpressManager {
      *
      * @return void
      */
-    public function extendGeneralSettingsPage(): void {
-
+    public function extendGeneralSettingsPage(): void
+    {
         // Default schema.org organization logo URL.
         add_settings_field(
             'core_theme_org_logo_url-id',
             'Organization Logo (URL)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_org_logo_url" type="text" id="core_theme_org_logo_url-id" value="%s" class="regular-text">',
                     get_option('core_theme_org_logo_url', '')
                 );
@@ -72,8 +70,9 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_social_img_url-id',
             'Default Social Image (URL)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_social_img_url" type="text" id="core_theme_social_img_url-id" value="%s" class="regular-text">',
                     get_option('core_theme_social_img_url', '')
                 );
@@ -97,8 +96,9 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_facebook_page_url-id',
             'Facebook Page (URL)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_facebook_page_url" type="text" id="core_theme_facebook_page_url-id" value="%s" class="regular-text">',
                     get_option('core_theme_facebook_page_url', '')
                 );
@@ -122,8 +122,9 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_facebook_app_id-id',
             'Facebook App Id(s)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_facebook_app_id" type="text" id="core_theme_facebook_app_id-id" value="%s" class="regular-text">',
                     get_option('core_theme_facebook_app_id', '')
                 );
@@ -147,8 +148,9 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_facebook_page_id-id',
             'Facebook Page Id(s)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_facebook_page_id" type="text" id="core_theme_facebook_page_id-id" value="%s" class="regular-text">',
                     get_option('core_theme_facebook_page_id', '')
                 );
@@ -172,8 +174,9 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_twitter_handle-id',
             'Twitter Handle (@)',
-            function() {
+            function () {
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_twitter_handle" type="text" id="core_theme_twitter_handle-id" value="%s" class="regular-text">',
                     get_option('core_theme_twitter_handle', '')
                 );
@@ -197,17 +200,17 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_twitter_large_image-id',
             'Use large Twitter images',
-            function() {
-
+            function () {
                 $checked = (int) get_option('core_theme_twitter_large_image', 0) == 1 ? ' checked="checked"' : '';
 
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_twitter_large_image" type="checkbox" id="core_theme_twitter_large_image-id" value="1" class="regular-text"%s>',
                     $checked
                 );
 
+                // phpcs:ignore
                 echo '<p class="date-time-doc"><a href="https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image" target="_blank" rel="noopener noreferrer">Documentation on Twitter Cards with Large Images</a>.</p>';
-
             },
             'general',
             'default',
@@ -229,17 +232,17 @@ class Bootstrap implements WordpressManager {
         add_settings_field(
             'core_theme_twitter_do_not_track-id',
             "Use Twitter's DNT Privacy tag",
-            function() {
-
+            function () {
                 $checked = (int) get_option('core_theme_twitter_do_not_track', 0) == 1 ? ' checked="checked"' : '';
 
                 echo sprintf(
+                    // phpcs:ignore
                     '<input name="core_theme_twitter_do_not_track" type="checkbox" id="core_theme_twitter_do_not_track-id" value="1" class="regular-text"%s>',
                     $checked
                 );
 
+                // phpcs:ignore
                 echo '<p class="date-time-doc"><a href="https://developer.twitter.com/en/docs/twitter-for-websites/privacy" target="_blank" rel="noopener noreferrer">Documentation on Twitter privacy options</a>.</p>';
-
             },
             'general',
             'default',
@@ -256,7 +259,6 @@ class Bootstrap implements WordpressManager {
                 'default' => 0
             ]
         );
-
     }
 
     /**
@@ -264,20 +266,18 @@ class Bootstrap implements WordpressManager {
      *
      * @return void
      */
-    public function addTwigFunctions(): void {
-
+    public function addTwigFunctions(): void
+    {
         // Add static_url function.
-        add_filter('timber/twig', function(Environment $twig) {
+        add_filter('timber/twig', function (Environment $twig) {
             $twig->addFunction(new TwigFunction('static_url', fn ($path) => Utilities::staticUrl($path)));
             return $twig;
         });
 
         // Add home_url function.
-        add_filter('timber/twig', function(Environment $twig) {
+        add_filter('timber/twig', function (Environment $twig) {
             $twig->addFunction(new TwigFunction('home_url', 'home_url'));
             return $twig;
         });
-
     }
-
 }

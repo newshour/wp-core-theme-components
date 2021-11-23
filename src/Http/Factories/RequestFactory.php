@@ -14,21 +14,19 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @see https://symfony.com/doc/current/components/http_foundation.html#request
  */
-final class RequestFactory {
-
+final class RequestFactory
+{
     private static $instance;
 
     /**
      * @return Request
      */
-    public static function get(): Request {
-
+    public static function get(): Request
+    {
         if (self::$instance == null) {
             self::$instance = Request::createFromGlobals();
         }
 
         return self::$instance;
-
     }
-
 }

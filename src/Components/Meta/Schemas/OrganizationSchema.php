@@ -6,9 +6,9 @@
 
 namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 
-class OrganizationSchema extends AbstractSchema {
-
-    const SCHEMA_TYPE = 'Organization';
+class OrganizationSchema extends AbstractSchema
+{
+    public const SCHEMA_TYPE = 'Organization';
 
     private bool $isPublisher = false;
     private bool $isNewsMediaOrg = false;
@@ -16,10 +16,9 @@ class OrganizationSchema extends AbstractSchema {
     /**
      * @param boolean $isPublisher Optional
      */
-    public function __construct($isPublisher = false) {
-
+    public function __construct($isPublisher = false)
+    {
         $this->isPublisher = (bool) $isPublisher;
-
     }
 
     /**
@@ -29,8 +28,8 @@ class OrganizationSchema extends AbstractSchema {
      * @see https://wordpress.org/support/article/settings-general-screen/
      * @return OrganizationSchema
      */
-    public static function createFromBlogInfo(): OrganizationSchema {
-
+    public static function createFromBlogInfo(): OrganizationSchema
+    {
         $obj = new OrganizationSchema(true);
         $obj->setName(get_bloginfo('name'));
         $obj->setUrl(get_bloginfo('url'));
@@ -40,14 +39,13 @@ class OrganizationSchema extends AbstractSchema {
         $obj->setLogo($image);
 
         return $obj;
-
     }
 
     /**
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         $headers = [
             '@context' => 'https://schema.org',
             '@type' => $this->isNewsMediaOrg() ? 'NewsMediaOrganization' : self::SCHEMA_TYPE,
@@ -58,7 +56,6 @@ class OrganizationSchema extends AbstractSchema {
         }
 
         return array_merge($headers, parent::toArray());
-
     }
 
     /**
@@ -66,10 +63,9 @@ class OrganizationSchema extends AbstractSchema {
      *
      * @return string
      */
-    public function getName(): string {
-
+    public function getName(): string
+    {
         return parent::parameters()->get('name', '');
-
     }
 
     /**
@@ -78,16 +74,12 @@ class OrganizationSchema extends AbstractSchema {
      * @param string $name
      * @return self
      */
-    public function setName($name) {
-
+    public function setName($name)
+    {
         if (empty($name)) {
-
             parent::parameters()->remove('name');
-
         } else {
-
             parent::parameters()->set('name', (string) $name);
-
         }
 
         return $this;
@@ -98,72 +90,61 @@ class OrganizationSchema extends AbstractSchema {
      *
      * @return ImageSchema
      */
-    public function getLogo(): ImageSchema {
-
+    public function getLogo(): ImageSchema
+    {
         return parent::parameters()->get('logo', new ImageSchema());
-
     }
 
     /**
      * @param ImageSchema|null $logo
      * @return self
      */
-    public function setLogo(ImageSchema $logo = null): self {
-
+    public function setLogo(ImageSchema $logo = null): self
+    {
         if ($logo instanceof ImageSchema && !$logo->isEmpty()) {
-
             parent::parameters()->set('logo', $logo);
-
         } else {
-
             parent::parameters()->remove('logo');
-
         }
 
         return $this;
-
     }
 
     /**
      * @return boolean
      */
-    public function isPublisher(): bool {
-
+    public function isPublisher(): bool
+    {
         return $this->isPublisher;
-
     }
 
     /**
      * @param boolean $isPublisher
      * @return self
      */
-    public function setIsPublisher($isPublisher = true): self {
-
+    public function setIsPublisher($isPublisher = true): self
+    {
         $this->isPublisher = $isPublisher;
 
         return $this;
-
     }
 
     /**
      * @return boolean
      */
-    public function isNewsMediaOrg(): bool {
-
+    public function isNewsMediaOrg(): bool
+    {
         return $this->isNewsMediaOrg;
-
     }
 
     /**
      * @param boolean $isNewsMediaOrg
      * @return self
      */
-    public function setIsNewsMediaOrg($isNewsMediaOrg = true): self {
-
+    public function setIsNewsMediaOrg($isNewsMediaOrg = true): self
+    {
         $this->isNewsMediaOrg = $isNewsMediaOrg;
 
         return $this;
-
     }
-
 }

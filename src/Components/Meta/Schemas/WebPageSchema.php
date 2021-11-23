@@ -11,17 +11,17 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
 /**
  * Generates schema.org data for WebPage types.
  */
-class WebPageSchema extends AbstractSchema {
-
-    const SCHEMA_TYPE = 'WebPage';
+class WebPageSchema extends AbstractSchema
+{
+    public const SCHEMA_TYPE = 'WebPage';
 
     /**
      * @param CorePost $post
      * @param OrganizationSchema $publisher Optional
      * @return WebPageSchema
      */
-    public static function createFromCorePost(CorePost $post, OrganizationSchema $publisher = null): WebPageSchema {
-
+    public static function createFromCorePost(CorePost $post, OrganizationSchema $publisher = null): WebPageSchema
+    {
         if ($publisher == null) {
             $publisher = OrganizationSchema::createFromBlogInfo();
         }
@@ -51,14 +51,13 @@ class WebPageSchema extends AbstractSchema {
         }
 
         return $obj;
-
     }
 
     /**
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         $headers = [
             '@context' => 'http://schema.org',
             '@type' => self::SCHEMA_TYPE
@@ -69,7 +68,6 @@ class WebPageSchema extends AbstractSchema {
         }
 
         return array_merge($headers, parent::toArray());
-
     }
 
     /**
@@ -77,10 +75,9 @@ class WebPageSchema extends AbstractSchema {
      *
      * @return string
      */
-    public function getName(): string {
-
+    public function getName(): string
+    {
         return parent::parameters()->get('name', '');
-
     }
 
     /**
@@ -89,20 +86,14 @@ class WebPageSchema extends AbstractSchema {
      * @param string $name
      * @return self
      */
-    public function setName($name): self {
-
+    public function setName($name): self
+    {
         if (empty($name)) {
-
             parent::parameters()->remove('name');
-
         } else {
-
             parent::parameters()->set('name', (string) $name);
-
         }
 
         return $this;
-
     }
-
 }

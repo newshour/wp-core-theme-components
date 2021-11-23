@@ -7,7 +7,6 @@
 namespace NewsHour\WPCoreThemeComponents\Tests\Meta;
 
 use PHPUnit\Framework\TestCase;
-
 use NewsHour\WPCoreThemeComponents\Components\Meta\PageMeta;
 
 class PageMetaTest extends TestCase

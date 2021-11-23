@@ -8,15 +8,14 @@ namespace NewsHour\WPCoreThemeComponents\Contexts;
 
 use ArrayAccess;
 use Countable;
-
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a base context object and calls Timber::context(). All Context
  * implementations should extend from this base Context.
  */
-class BaseContext implements ArrayAccess, Context, Countable {
-
+class BaseContext implements ArrayAccess, Context, Countable
+{
     // Context data dictionary.
     private array $data = [];
 
@@ -28,24 +27,22 @@ class BaseContext implements ArrayAccess, Context, Countable {
      *
      * @param array $initial - Add initial key value pairs.
      */
-    public function __construct(Request $request, array $initial = []) {
-
+    public function __construct(Request $request, array $initial = [])
+    {
         $this->request = $request;
         $this->data = $initial;
-
     }
 
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         return sprintf(
             '%s [vars: %s]',
             self::class,
             implode('|', array_keys($this->data))
         );
-
     }
 
     /**
@@ -53,28 +50,25 @@ class BaseContext implements ArrayAccess, Context, Countable {
      *
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         return $this->data;
-
     }
 
     /**
      * @return int
      */
-    public function count(): int {
-
+    public function count(): int
+    {
         return count($this->data);
-
     }
 
     /**
      * @return Request
      */
-    public function getRequest(): Request {
-
+    public function getRequest(): Request
+    {
         return $this->request;
-
     }
 
     /**
@@ -82,45 +76,41 @@ class BaseContext implements ArrayAccess, Context, Countable {
      * @param  mixed $value
      * @return void
      */
-    public function offsetSet($offset, $value) {
-
+    public function offsetSet($offset, $value)
+    {
         if (is_null($offset)) {
             $this->data[] = $value;
             return;
         }
 
         $this->data[$offset] = $value;
-
     }
 
     /**
      * @param  mixed $offset
      * @return mixed
      */
-    public function offsetExists($offset) {
-
+    public function offsetExists($offset)
+    {
         return isset($this->data[$offset]);
-
     }
 
     /**
      * @param  mixed $offset
      * @return void
      */
-    public function offsetUnset($offset) {
-
+    public function offsetUnset($offset)
+    {
         unset($this->data[$offset]);
-
     }
 
     /**
      * @param  mixed $offset
      * @return mixed
      */
-    public function offsetGet($offset) {
-
+    public function offsetGet($offset)
+    {
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
-
     }
 
     /**
@@ -128,10 +118,8 @@ class BaseContext implements ArrayAccess, Context, Countable {
      * @param  mixed $value
      * @return void
      */
-    public function set($key, $value = '') {
-
+    public function set($key, $value = '')
+    {
         $this->offsetSet($key, $value);
-
     }
-
 }

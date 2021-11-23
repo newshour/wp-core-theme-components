@@ -7,12 +7,9 @@
 namespace NewsHour\WPCoreThemeComponents\Tests\Annotations;
 
 use ReflectionMethod;
-
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-
 use PHPUnit\Framework\TestCase;
-
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
 use NewsHour\WPCoreThemeComponents\Tests\DummyController;

@@ -14,8 +14,8 @@ use Timber\TextHelper;
  *
  * @abstract
  */
-abstract class CorePost extends Post {
-
+abstract class CorePost extends Post
+{
     // Storage for categories and tags.
     private array $storage = [];
 
@@ -24,14 +24,13 @@ abstract class CorePost extends Post {
      *
      * @return string
      */
-    public function excerpt(): string {
-
+    public function excerpt(): string
+    {
         if (empty($this->post_excerpt)) {
             return TextHelper::trim_words($this->content(), 55, '...', '');
         }
 
         return strip_tags($this->post_excerpt);
-
     }
 
     /**
@@ -39,14 +38,13 @@ abstract class CorePost extends Post {
      *
      * @return array
      */
-    public function categories(): array {
-
+    public function categories(): array
+    {
         if (empty($this->storage['categories'])) {
             $this->storage['categories'] = parent::categories();
         }
 
         return $this->storage['categories'];
-
     }
 
     /**
@@ -54,12 +52,11 @@ abstract class CorePost extends Post {
      *
      * @return CorePost
      */
-    public function refreshCategories(): CorePost {
-
+    public function refreshCategories(): CorePost
+    {
         $this->storage['categories'] = null;
         $this->categories();
         return $this;
-
     }
 
     /**
@@ -67,14 +64,13 @@ abstract class CorePost extends Post {
      *
      * @return array
      */
-    public function tags(): array {
-
+    public function tags(): array
+    {
         if (empty($this->storage['tags'])) {
             $this->storage['tags'] = parent::tags();
         }
 
         return $this->storage['tags'];
-
     }
 
     /**
@@ -82,12 +78,10 @@ abstract class CorePost extends Post {
      *
      * @return CorePost
      */
-    public function refreshTags(): CorePost {
-
+    public function refreshTags(): CorePost
+    {
         $this->storage['tags'] = null;
         $this->tags();
         return $this;
-
     }
-
 }

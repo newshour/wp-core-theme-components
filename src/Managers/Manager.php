@@ -15,18 +15,17 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @abstract
  */
-abstract class Manager implements WordpressManager {
-
+abstract class Manager implements WordpressManager
+{
     // Request object.
     private Request $request;
 
     /**
      * @param Request $request
      */
-    public function __construct(Request $request) {
-
+    public function __construct(Request $request)
+    {
         $this->request = $request;
-
     }
 
     /**
@@ -39,19 +38,16 @@ abstract class Manager implements WordpressManager {
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         return self::class;
-
     }
 
     /**
      * @return Request
      */
-    public function getRequest(): Request {
-
+    public function getRequest(): Request
+    {
         return $this->request;
-
     }
-
 }

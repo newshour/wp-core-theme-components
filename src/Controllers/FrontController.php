@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @version 1.0.0
  */
@@ -8,15 +9,12 @@ namespace NewsHour\WPCoreThemeComponents\Controllers;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
-
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\PsrCachedReader;
-
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\HttpFoundation\Response;
-
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
 use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
@@ -29,8 +27,8 @@ use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
  *
  * @final
  */
-final class FrontController {
-
+final class FrontController
+{
     /**
      * Loads a controller and invokes the method. An optional context object can
      * be passed. If one is not, the default context defined in ContextFactory
@@ -41,10 +39,9 @@ final class FrontController {
      * @param  Context $context Deprecated
      * @return Controller
      */
-    public static function run(string $controllerClass, string $method, Context $context = null) {
-
+    public static function run(string $controllerClass, string $method, Context $context = null)
+    {
         try {
-
             $reflectedClass = new ReflectionClass($controllerClass);
 
             if (!$reflectedClass->isInstantiable() || !$reflectedClass->isSubclassOf(Controller::class)) {
@@ -145,23 +142,16 @@ final class FrontController {
 
             // We're all done. Wordpress will run its `shutdown` action on exit.
             exit;
-
         } catch (ReflectionException $re) {
-
             trigger_error(
                 sprintf('%s [stack trace] %s', $re->getMessage(), $re->getTraceAsString()),
                 E_USER_ERROR
             );
-
         } catch (Exception $e) {
-
             trigger_error(
                 sprintf('%s [stack trace] %s', $e->getMessage(), $e->getTraceAsString()),
                 E_USER_ERROR
             );
-
         }
-
     }
-
 }

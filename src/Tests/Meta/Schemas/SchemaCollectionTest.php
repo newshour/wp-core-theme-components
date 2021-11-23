@@ -7,9 +7,7 @@
 namespace NewsHour\WPCoreThemeComponents\Tests\Meta\Schemas;
 
 use InvalidArgumentException;
-
 use PHPUnit\Framework\TestCase;
-
 use NewsHour\WPCoreThemeComponents\Components\Meta\Schemas\OrganizationSchema;
 use NewsHour\WPCoreThemeComponents\Components\Meta\Schemas\SchemaCollection;
 use NewsHour\WPCoreThemeComponents\Tests\DummyController;

@@ -14,8 +14,8 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
  *
  * @version 1.0.0
  */
-class PageMeta extends HtmlMeta {
-
+class PageMeta extends HtmlMeta
+{
     private string $canonicalUrl = '';
     private string $description = '';
     private string $robots = '';
@@ -31,8 +31,8 @@ class PageMeta extends HtmlMeta {
      * @param FacebookMeta|null $facebookMeta
      * @param TwitterMeta|null $twitterMeta
      */
-    public function __construct(FacebookMeta $facebookMeta = null, TwitterMeta $twitterMeta = null) {
-
+    public function __construct(FacebookMeta $facebookMeta = null, TwitterMeta $twitterMeta = null)
+    {
         if (!$facebookMeta == null) {
             $this->setFacebookMeta($facebookMeta);
         }
@@ -40,15 +40,14 @@ class PageMeta extends HtmlMeta {
         if (!$twitterMeta == null) {
             $this->setTwitterMeta($twitterMeta);
         }
-
     }
 
     /**
      * @param CorePost $post
      * @return PageMeta
      */
-    public static function createFromCorePost(CorePost $post): PageMeta {
-
+    public static function createFromCorePost(CorePost $post): PageMeta
+    {
         $facebookType = ($post->post_type == 'page') ? 'website' : 'article';
         $facebookMeta = FacebookMeta::createFromCorePost($post, $facebookType);
         $twitterMeta = TwitterMeta::createFromCorePost($post);
@@ -59,14 +58,13 @@ class PageMeta extends HtmlMeta {
             ->setKeywords($post->tags());
 
         return $obj;
-
     }
 
     /**
      * @return string
      */
-    public function render(): string {
-
+    public function render(): string
+    {
         // Add metas.
         $html = [
             Utilities::createMetaTag('description', $this->getDescription()),
@@ -97,65 +95,58 @@ class PageMeta extends HtmlMeta {
         }
 
         return $htmlStr;
-
     }
 
     /**
      * @return string
      */
-    public function getCanonicalUrl(): string {
-
+    public function getCanonicalUrl(): string
+    {
         return $this->canonicalUrl;
-
     }
 
     /**
      * @return self
      */
-    public function setCanonicalUrl($canonicalUrl): self {
-
+    public function setCanonicalUrl($canonicalUrl): self
+    {
         $this->canonicalUrl = $canonicalUrl;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getDescription(): string {
-
+    public function getDescription(): string
+    {
         return $this->description;
-
     }
 
     /**
      * @return self
      */
-    public function setDescription($description): self {
-
+    public function setDescription($description): self
+    {
         $this->description = $description;
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getRobots(): string {
-
+    public function getRobots(): string
+    {
         return $this->robots;
-
     }
 
     /**
      * @return self
      */
-    public function setRobots($robots): self {
-
+    public function setRobots($robots): self
+    {
         $this->robots = $robots;
         return $this;
-
     }
 
     /**
@@ -163,10 +154,9 @@ class PageMeta extends HtmlMeta {
      *
      * @return array
      */
-    public function getKeywords(): array {
-
+    public function getKeywords(): array
+    {
         return $this->keywords;
-
     }
 
     /**
@@ -175,8 +165,8 @@ class PageMeta extends HtmlMeta {
      * @param string $tag
      * @return self
      */
-    public function addKeyword($keyword): self {
-
+    public function addKeyword($keyword): self
+    {
         $cleaned = trim($keyword);
 
         if (!in_array($cleaned, $this->keywords)) {
@@ -184,7 +174,6 @@ class PageMeta extends HtmlMeta {
         }
 
         return $this;
-
     }
 
     /**
@@ -194,22 +183,16 @@ class PageMeta extends HtmlMeta {
      * @param string $token Optional
      * @return self
      */
-    public function setKeywords($keywords, $token = ''): self {
-
+    public function setKeywords($keywords, $token = ''): self
+    {
         $keywordsList = [];
 
         if (is_array($keywords)) {
-
             $keywordsList = $keywords;
-
         } elseif (!empty($token) && strpos($token, $keywords) !== false) {
-
             $keywordsList = Utilities::splitter($keywords, $token);
-
         } else {
-
             $keywordsList = [$keywords];
-
         }
 
         if (count($keywordsList) > 0) {
@@ -219,89 +202,80 @@ class PageMeta extends HtmlMeta {
         }
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getPodcastFeed(): string {
-
+    public function getPodcastFeed(): string
+    {
         return $this->podcastFeed;
-
     }
 
     /**
      * @return self
      */
-    public function setPodcastFeed($podcastFeed): self {
-
+    public function setPodcastFeed($podcastFeed): self
+    {
         $this->podcastFeed = $podcastFeed;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getArticleFeed(): string {
-
+    public function getArticleFeed(): string
+    {
         return $this->articleFeed;
-
     }
 
     /**
      * @return self
      */
-    public function setArticleFeed($articleFeed): self {
-
+    public function setArticleFeed($articleFeed): self
+    {
         $this->articleFeed = $articleFeed;
 
         return $this;
-
     }
 
     /**
      * @return FacebookMeta|null
      */
-    public function getFacebookMeta(): ?FacebookMeta {
-
+    public function getFacebookMeta(): ?FacebookMeta
+    {
         return $this->facebookMeta;
-
     }
 
     /**
      * @param FacebookMeta $facebookMeta
      * @return self
      */
-    public function setFacebookMeta(FacebookMeta $facebookMeta): self {
-
+    public function setFacebookMeta(FacebookMeta $facebookMeta): self
+    {
         $this->facebookMeta = $facebookMeta;
 
         return $this;
-
     }
 
     /**
      * @return TwitterMeta|null
      */
-    public function getTwitterMeta(): ?TwitterMeta {
-
+    public function getTwitterMeta(): ?TwitterMeta
+    {
         return $this->twitterMeta;
-
     }
 
     /**
      * @param TwitterMeta $twitterMeta
      * @return self
      */
-    public function setTwitterMeta(TwitterMeta $twitterMeta): self {
-
+    public function setTwitterMeta(TwitterMeta $twitterMeta): self
+    {
         $this->twitterMeta = $twitterMeta;
 
         return $this;
-
     }
 
     /**
@@ -309,10 +283,9 @@ class PageMeta extends HtmlMeta {
      *
      * @return bool
      */
-    public function getWithKeywords(): bool {
-
+    public function getWithKeywords(): bool
+    {
         return $this->withKeywords;
-
     }
 
     /**
@@ -321,12 +294,10 @@ class PageMeta extends HtmlMeta {
      * @param bool $withKeywords
      * @return self
      */
-    public function setWithKeywords($withKeywords): self {
-
+    public function setWithKeywords($withKeywords): self
+    {
         $this->withKeywords = (bool) $withKeywords;
 
         return $this;
-
     }
-
 }

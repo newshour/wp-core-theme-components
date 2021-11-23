@@ -12,28 +12,27 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
 /**
  * Represents Twitter meta tag data.
  */
-class TwitterMeta extends HtmlMeta {
-
+class TwitterMeta extends HtmlMeta
+{
     private string $site = '';
     private string $title = '';
     private string $imageUrl = '';
     private string $card = 'summary';
     private bool $doNotTrack = false;
 
-    public function __construct() {
-
+    public function __construct()
+    {
         if (!empty((int) get_option('core_theme_twitter_do_not_track', 0))) {
             $this->doNotTrack = true;
         }
-
     }
 
     /**
      * @param CorePost $post
      * @return TwitterMeta
      */
-    public static function createFromCorePost(CorePost $post): TwitterMeta {
-
+    public static function createFromCorePost(CorePost $post): TwitterMeta
+    {
         $obj = new TwitterMeta();
         $obj->setTitle($post->title())
             ->setSite(get_option('core_theme_twitter_handle', ''));
@@ -47,14 +46,13 @@ class TwitterMeta extends HtmlMeta {
         }
 
         return $obj;
-
     }
 
     /**
      * @return string
      */
-    public function render(): string {
-
+    public function render(): string
+    {
         $html = [
             Utilities::createMetaPropertyTag('twitter:site', $this->getSite()),
             Utilities::createMetaPropertyTag('twitter:title', $this->getTitle()),
@@ -74,22 +72,20 @@ class TwitterMeta extends HtmlMeta {
     /**
      * @return string
      */
-    public function getTitle(): string {
-
+    public function getTitle(): string
+    {
         return $this->title;
-
     }
 
     /**
      * @param string $title
      * @return self
      */
-    public function setTitle($title): self {
-
+    public function setTitle($title): self
+    {
         $this->title = $title;
 
         return $this;
-
     }
 
     /**
@@ -97,10 +93,9 @@ class TwitterMeta extends HtmlMeta {
      *
      * @return string
      */
-    public function getSite(): string {
-
+    public function getSite(): string
+    {
         return $this->site;
-
     }
 
     /**
@@ -109,73 +104,67 @@ class TwitterMeta extends HtmlMeta {
      * @param string $site
      * @return self
      */
-    public function setSite($site): self {
-
+    public function setSite($site): self
+    {
         if (!empty($site)) {
             $this->site = '@' . ltrim($site, '@');
         }
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getCard(): string {
-
+    public function getCard(): string
+    {
         return $this->card;
-
     }
 
     /**
      * @param string $card
      * @return self
      */
-    public function setCard($card): self {
-
+    public function setCard($card): self
+    {
         $this->card = $card;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getImageUrl(): string {
-
+    public function getImageUrl(): string
+    {
         return $this->imageUrl;
-
     }
 
     /**
      * @param string $imageUrl
      * @return void
      */
-    public function setImageUrl($imageUrl): self {
-
+    public function setImageUrl($imageUrl): self
+    {
         $this->imageUrl = $imageUrl;
 
         return $this;
-
     }
 
     /**
      * @return bool
      */
-    public function getDoNotTrack(): bool {
-
+    public function getDoNotTrack(): bool
+    {
         return $this->doNotTrack;
-
     }
 
     /**
      * @param bool $doNotTrack
      * @return self
      */
-    public function setDoNotTrack($doNotTrack): self {
-
+    public function setDoNotTrack($doNotTrack): self
+    {
         if (is_string($doNotTrack) && strcasecmp($doNotTrack, 'on') == 0) {
             $doNotTrack = true;
         }
@@ -184,5 +173,4 @@ class TwitterMeta extends HtmlMeta {
 
         return $this;
     }
-
 }

@@ -11,9 +11,9 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
 /**
  * Generates schema.org data for NewsArticle types.
  */
-class NewsArticleSchema extends AbstractSchema {
-
-    const SCHEMA_TYPE = 'NewsArticle';
+class NewsArticleSchema extends AbstractSchema
+{
+    public const SCHEMA_TYPE = 'NewsArticle';
 
     private string $headline = '';
     private string $dateline = '';
@@ -22,8 +22,8 @@ class NewsArticleSchema extends AbstractSchema {
      * @param CorePost $post
      * @return NewsArticleSchema
      */
-    public static function createFromCorePost(CorePost $post): NewsArticleSchema {
-
+    public static function createFromCorePost(CorePost $post): NewsArticleSchema
+    {
         $obj = new NewsArticleSchema();
         $obj->setUrl($post->link())
             ->setHeadline($post->title())
@@ -47,14 +47,13 @@ class NewsArticleSchema extends AbstractSchema {
         }
 
         return $obj;
-
     }
 
     /**
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         $headers = [
             '@context' => 'http://schema.org',
             '@type' => self::SCHEMA_TYPE
@@ -65,7 +64,6 @@ class NewsArticleSchema extends AbstractSchema {
         }
 
         return array_merge($headers, parent::toArray());
-
     }
 
     /**
@@ -73,10 +71,9 @@ class NewsArticleSchema extends AbstractSchema {
      *
      * @return string
      */
-    public function getHeadline(): string {
-
+    public function getHeadline(): string
+    {
         return parent::parameters()->get('headline', '');
-
     }
 
     /**
@@ -84,20 +81,15 @@ class NewsArticleSchema extends AbstractSchema {
      *
      * @return  self
      */
-    public function setHeadline($headline): self {
-
+    public function setHeadline($headline): self
+    {
         if (empty($headline)) {
-
             parent::parameters()->remove('headline');
-
         } else {
-
             parent::parameters()->set('headline', (string) $headline);
-
         }
 
         return $this;
-
     }
 
     /**
@@ -105,10 +97,9 @@ class NewsArticleSchema extends AbstractSchema {
      *
      * @return string
      */
-    public function getDateline(): string {
-
+    public function getDateline(): string
+    {
         return parent::parameters()->get('dateline', '');
-
     }
 
     /**
@@ -117,20 +108,14 @@ class NewsArticleSchema extends AbstractSchema {
      * @param string $dateline
      * @return self
      */
-    public function setDateline($dateline): self {
-
+    public function setDateline($dateline): self
+    {
         if (empty($headline)) {
-
             parent::parameters()->remove('dateline');
-
         } else {
-
             parent::parameters()->set('dateline', (string) $dateline);
-
         }
 
         return $this;
-
     }
-
 }

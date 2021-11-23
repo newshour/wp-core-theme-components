@@ -12,8 +12,8 @@ use SplObjectStorage;
 /**
  * A collection of Schema objects.
  */
-class SchemaCollection extends SplObjectStorage {
-
+class SchemaCollection extends SplObjectStorage
+{
     /**
      * Attach a Schema to the collection.
      *
@@ -22,14 +22,13 @@ class SchemaCollection extends SplObjectStorage {
      * @throws InvalidArgumentException
      * @return void
      */
-    public function attach($object, $info = null) {
-
+    public function attach($object, $info = null)
+    {
         if (!($object instanceof Schema)) {
             throw new InvalidArgumentException("Object is not of type Schema.");
         }
 
         parent::attach($object, $info);
-
     }
 
     /**
@@ -37,24 +36,20 @@ class SchemaCollection extends SplObjectStorage {
      *
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         $final = [];
 
         if (parent::count() > 0) {
-
             parent::rewind();
 
-            while(parent::valid()) {
+            while (parent::valid()) {
                 $object = parent::current();
                 $final[] = $object->toArray();
                 parent::next();
             }
-
         }
 
         return $final;
-
     }
-
 }
