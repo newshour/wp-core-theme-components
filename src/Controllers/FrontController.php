@@ -15,13 +15,13 @@ use Doctrine\Common\Annotations\PsrCachedReader;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
+use Symfony\Component\HttpFoundation\Response;
 
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
 use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
