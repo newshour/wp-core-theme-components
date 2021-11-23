@@ -7,9 +7,7 @@
 namespace NewsHour\WPCoreThemeComponents\Tests\Meta;
 
 use Carbon\Carbon;
-
 use PHPUnit\Framework\TestCase;
-
 use NewsHour\WPCoreThemeComponents\Components\Meta\FacebookMeta;
 
 class FacebookMetaTest extends TestCase

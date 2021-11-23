@@ -13,8 +13,8 @@ use NewsHour\WPCoreThemeComponents\Components\Component;
  *
  * @version 1.0.0
  */
-abstract class HtmlMeta implements Component {
-
+abstract class HtmlMeta implements Component
+{
     /**
      * @return string
      */
@@ -23,10 +23,8 @@ abstract class HtmlMeta implements Component {
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         return $this->render();
-
     }
-
 }

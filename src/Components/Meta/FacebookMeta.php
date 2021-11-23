@@ -7,15 +7,14 @@
 namespace NewsHour\WPCoreThemeComponents\Components\Meta;
 
 use Carbon\Carbon;
-
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
 /**
  * Represents Facebook meta tag data.
  */
-class FacebookMeta extends HtmlMeta {
-
+class FacebookMeta extends HtmlMeta
+{
     private array $appId = [];
     private array $pagesId = [];
     private string $publisherUrl = '';
@@ -39,8 +38,8 @@ class FacebookMeta extends HtmlMeta {
      * @param string $section
      * @return FacebookMeta
      */
-    public static function createFromCorePost(CorePost $post, $contentType = 'article', $section = ''): FacebookMeta {
-
+    public static function createFromCorePost(CorePost $post, $contentType = 'article', $section = ''): FacebookMeta
+    {
         $obj = new FacebookMeta();
         $obj->setType($contentType)
             ->setTitle($post->title())
@@ -69,7 +68,6 @@ class FacebookMeta extends HtmlMeta {
         }
 
         if (!empty($thumbnail = $post->thumbnail())) {
-
             $obj->setImageUrl(
                 $thumbnail->src('large')
             )->setImageHeight(
@@ -77,18 +75,16 @@ class FacebookMeta extends HtmlMeta {
             )->setImageWidth(
                 Utilities::getImageDimension($thumbnail, 'large', 'width')
             );
-
         }
 
         return $obj;
-
     }
 
     /**
      * @return string
      */
-    public function render(): string {
-
+    public function render(): string
+    {
         $html = [
             Utilities::createMetaPropertyTag('og:locale', get_locale()),
             Utilities::createMetaPropertyTag('og:type', $this->getType()),
@@ -134,192 +130,174 @@ class FacebookMeta extends HtmlMeta {
         }
 
         return implode(PHP_EOL, $html);
-
     }
 
     /**
      * @return array
      */
-    public function getAppId(): array {
-
+    public function getAppId(): array
+    {
         return $this->appId;
-
     }
 
     /**
      * @param string $appId
      * @return self
      */
-    public function addAppId($appId): self {
-
+    public function addAppId($appId): self
+    {
         if (!in_array($appId, $this->appId)) {
             $this->appId[] = $appId;
         }
 
         return $this;
-
     }
 
     /**
      * @param array $appId
      * @return self
      */
-    public function setAppId(array $appId = []): self {
-
+    public function setAppId(array $appId = []): self
+    {
         $this->appId = $appId;
 
         return $this;
-
     }
 
     /**
      * @return array
      */
-    public function getPagesId(): array {
-
+    public function getPagesId(): array
+    {
         return $this->pagesId;
-
     }
 
     /**
      * @param string $pagesId
      * @return self
      */
-    public function addPagesId($pagesId): self {
-
+    public function addPagesId($pagesId): self
+    {
         if (!in_array($pagesId, $this->pagesId)) {
             $this->pagesId[] = $pagesId;
         }
 
         return $this;
-
     }
 
     /**
      * @param array $pagesId
      * @return self
      */
-    public function setPagesId(array $pagesId = []): self {
-
+    public function setPagesId(array $pagesId = []): self
+    {
         $this->pagesId = $pagesId;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getPublisherUrl(): string {
-
+    public function getPublisherUrl(): string
+    {
         return $this->publisherUrl;
-
     }
 
     /**
      * @param string $publisherUrl
      * @return self
      */
-    public function setPublisherUrl($publisherUrl): self {
-
+    public function setPublisherUrl($publisherUrl): self
+    {
         $this->publisherUrl = $publisherUrl;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getSiteName(): string {
-
+    public function getSiteName(): string
+    {
         return $this->siteName;
-
     }
 
     /**
      * @param string $siteName
      * @return self
      */
-    public function setSiteName($siteName): self {
-
+    public function setSiteName($siteName): self
+    {
         $this->siteName = $siteName;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getType(): string {
-
+    public function getType(): string
+    {
         return $this->type;
-
     }
 
     /**
      * @param string $type
      * @return self
      */
-    public function setType($type): self {
-
+    public function setType($type): self
+    {
         $this->type = $type;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getTitle(): string {
-
+    public function getTitle(): string
+    {
         return $this->title;
-
     }
 
     /**
      * @param string $title
      * @return self
      */
-    public function setTitle($title): self {
-
+    public function setTitle($title): self
+    {
         $this->title = $title;
 
         return $this;
-
     }
 
     /**
      * @return string
      */
-    public function getDescription(): string {
-
+    public function getDescription(): string
+    {
         return $this->description;
-
     }
 
     /**
      * @param string $description
      * @return self
      */
-    public function setDescription($description): self {
-
+    public function setDescription($description): self
+    {
         $this->description = $description;
 
         return $this;
-
     }
 
     /**
      *
      * @return string
      */
-    public function getImageUrl(): string {
-
+    public function getImageUrl(): string
+    {
         return $this->imageUrl;
-
     }
 
     /**
@@ -327,22 +305,20 @@ class FacebookMeta extends HtmlMeta {
      * @param string $imageUrl
      * @return self
      */
-    public function setImageUrl($imageUrl): self {
-
+    public function setImageUrl($imageUrl): self
+    {
         $this->imageUrl = $imageUrl;
 
         return $this;
-
     }
 
     /**
      *
      * @return integer
      */
-    public function getImageHeight(): int {
-
+    public function getImageHeight(): int
+    {
         return $this->imageHeight;
-
     }
 
     /**
@@ -350,22 +326,20 @@ class FacebookMeta extends HtmlMeta {
      * @param integer $imageHeight
      * @return self
      */
-    public function setImageHeight($imageHeight): self {
-
+    public function setImageHeight($imageHeight): self
+    {
         $this->imageHeight = (int)$imageHeight;
 
         return $this;
-
     }
 
     /**
      *
      * @return integer
      */
-    public function getImageWidth(): int {
-
+    public function getImageWidth(): int
+    {
         return $this->imageWidth;
-
     }
 
     /**
@@ -373,22 +347,20 @@ class FacebookMeta extends HtmlMeta {
      * @param integer $imageWidth
      * @return self
      */
-    public function setImageWidth($imageWidth): self {
-
+    public function setImageWidth($imageWidth): self
+    {
         $this->imageWidth = (int)$imageWidth;
 
         return $this;
-
     }
 
     /**
      *
      * @return string
      */
-    public function getUrl(): string {
-
+    public function getUrl(): string
+    {
         return $this->url;
-
     }
 
     /**
@@ -396,22 +368,20 @@ class FacebookMeta extends HtmlMeta {
      * @param string $url
      * @return self
      */
-    public function setUrl($url): self {
-
+    public function setUrl($url): self
+    {
         $this->url = $url;
 
         return $this;
-
     }
 
     /**
      *
      * @return string
      */
-    public function getSection(): string {
-
+    public function getSection(): string
+    {
         return $this->section;
-
     }
 
     /**
@@ -419,21 +389,19 @@ class FacebookMeta extends HtmlMeta {
      * @param string $section
      * @return self
      */
-    public function setSection($section): self {
-
+    public function setSection($section): self
+    {
         $this->section = $section;
 
         return $this;
-
     }
 
     /**
      * @return array
      */
-    public function getTags(): array {
-
+    public function getTags(): array
+    {
         return $this->tags;
-
     }
 
     /**
@@ -442,12 +410,11 @@ class FacebookMeta extends HtmlMeta {
      * @param string $tag
      * @return self
      */
-    public function addTag($tag): self {
-
+    public function addTag($tag): self
+    {
         $this->tags[] = str_replace(',', ' ', trim($tag));
 
         return $this;
-
     }
 
     /**
@@ -457,22 +424,16 @@ class FacebookMeta extends HtmlMeta {
      * @param string $token Optional
      * @return self
      */
-    public function setTags($tags, $token = null): self {
-
+    public function setTags($tags, $token = null): self
+    {
         $tagList = [];
 
         if (is_array($tags)) {
-
             $tagList = $tags;
-
         } elseif (!empty($token) && strpos($token, $tags) !== false) {
-
             $tagList = Utilities::splitter($tags, $token);
-
         } else {
-
             $tagList = [$tags];
-
         }
 
         foreach ($tagList as $tag) {
@@ -480,7 +441,6 @@ class FacebookMeta extends HtmlMeta {
         }
 
         return $this;
-
     }
 
 
@@ -489,10 +449,9 @@ class FacebookMeta extends HtmlMeta {
      *
      * @return Carbon|null
      */
-    public function getPublishedOn(): ?Carbon {
-
+    public function getPublishedOn(): ?Carbon
+    {
         return $this->publishedOn;
-
     }
 
     /**
@@ -502,8 +461,8 @@ class FacebookMeta extends HtmlMeta {
      * @param string $timezone Optional, default will be value of wp_timezone().
      * @return self
      */
-    public function setPublishedOn($publishedOn, $timezone = '') {
-
+    public function setPublishedOn($publishedOn, $timezone = '')
+    {
         if (empty($publishedOn)) {
             return $this;
         }
@@ -513,27 +472,20 @@ class FacebookMeta extends HtmlMeta {
         }
 
         if ($publishedOn instanceof Carbon) {
-
             $this->publishedOn = $publishedOn;
-
         } elseif (is_numeric($publishedOn)) {
-
             $this->publishedOn = Carbon::createFromTimestamp(
                 $publishedOn,
                 $timezone
             );
-
         } else {
-
             $this->publishedOn = Carbon::createFromTimestamp(
                 strtotime($publishedOn),
                 $timezone
             );
-
         }
 
         return $this;
-
     }
 
     /**
@@ -541,10 +493,9 @@ class FacebookMeta extends HtmlMeta {
      *
      * @return Carbon|null
      */
-    public function getModifiedOn(): ?Carbon {
-
+    public function getModifiedOn(): ?Carbon
+    {
         return $this->modifiedOn;
-
     }
 
     /**
@@ -554,8 +505,8 @@ class FacebookMeta extends HtmlMeta {
      * @param string $timezone Optional, default will be value of wp_timezone().
      * @return self
      */
-    public function setModifiedOn($modifiedOn, $timezone = '') {
-
+    public function setModifiedOn($modifiedOn, $timezone = '')
+    {
         if (empty($modifiedOn)) {
             return $this;
         }
@@ -565,27 +516,19 @@ class FacebookMeta extends HtmlMeta {
         }
 
         if ($modifiedOn instanceof Carbon) {
-
             $this->modifiedOn = $modifiedOn;
-
         } elseif (is_numeric($modifiedOn)) {
-
             $this->modifiedOn = Carbon::createFromTimestamp(
                 $modifiedOn,
                 $timezone
             );
-
         } else {
-
             $this->modifiedOn = Carbon::createFromTimestamp(
                 strtotime($modifiedOn),
                 $timezone
             );
-
         }
 
         return $this;
-
     }
-
 }

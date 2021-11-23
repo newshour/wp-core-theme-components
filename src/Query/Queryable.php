@@ -12,13 +12,13 @@ use ReflectionMethod;
 /**
  * Adds data fetching methods to Model classes.
  */
-trait Queryable {
-
+trait Queryable
+{
     /**
      * @return ResultSet
      */
-    public static function objects(): ResultSet {
-
+    public static function objects(): ResultSet
+    {
         $resultSet = self::getResultSetClass();
         $reflector = new ReflectionClass($resultSet);
 
@@ -30,7 +30,6 @@ trait Queryable {
         }
 
         return (new ReflectionMethod($resultSet, 'factory'))->invoke(null, self::class);
-
     }
 
     /**
@@ -46,10 +45,8 @@ trait Queryable {
      * @see PostsResultSet
      * @return string
      */
-    public static function getResultSetClass(): string {
-
+    public static function getResultSetClass(): string
+    {
         return defined(__CLASS__ . '::RESULT_SET_CLASS') ? self::RESULT_SET_CLASS : PostsResultSet::class;
-
     }
-
 }

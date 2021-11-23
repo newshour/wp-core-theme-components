@@ -8,11 +8,8 @@ namespace NewsHour\WPCoreThemeComponents\Managers;
 
 use ReflectionClass;
 use SplObjectStorage;
-
 use WP_CLI;
-
 use Symfony\Component\HttpFoundation\Request;
-
 use NewsHour\WPCoreThemeComponents\Commands\Command;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
 
@@ -22,8 +19,8 @@ use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
  *
  * @final
  */
-final class ManagerService {
-
+final class ManagerService
+{
     // SplObjectStorage
     private SplObjectStorage $managers;
 
@@ -36,20 +33,18 @@ final class ManagerService {
     /**
      * @param Request $request
      */
-    public function __construct(Request $request) {
-
+    public function __construct(Request $request)
+    {
         $this->managers = new SplObjectStorage();
         $this->request = $request;
-
     }
 
     /**
      * @return ManagerService
      */
-    public static function instance() {
-
+    public static function instance()
+    {
         if (self::$instance == null) {
-
             // Make sure WP_HOME exists.
             if (!defined('WP_HOME') || empty(WP_HOME)) {
                 trigger_error('The constant WP_HOME is not defined.', E_USER_ERROR);
@@ -59,11 +54,9 @@ final class ManagerService {
 
             // Add the bootstrap manager.
             self::$instance->add(Bootstrap::class);
-
         }
 
         return self::$instance;
-
     }
 
     /**
@@ -72,8 +65,8 @@ final class ManagerService {
      * @param  string $className
      * @return ManagerService
      */
-    public function add($className, array $args = []) {
-
+    public function add($className, array $args = [])
+    {
         $reflector = new ReflectionClass((string)$className);
 
         if (!$reflector->implementsInterface(WordpressManager::class)) {
@@ -82,24 +75,22 @@ final class ManagerService {
         }
 
         if ($reflector->hasMethod('__construct')) {
-
             array_unshift($args, $this->request);
-
             $this->managers->attach($reflector->newInstanceArgs($args));
-
-        } else {
-
-            if (count($args) > 0) {
-                trigger_error((string)$className . ' must declare a constructor first to pass arguments.', E_USER_WARNING);
-                return $this;
-            }
-
-            $this->managers->attach($reflector->newInstance());
-
+            return $this;
         }
 
-        return $this;
+        if (count($args) > 0) {
+            trigger_error(
+                (string)$className . ' must declare a constructor first to pass arguments.',
+                E_USER_WARNING
+            );
+            return $this;
+        }
 
+        $this->managers->attach($reflector->newInstance());
+
+        return $this;
     }
 
     /**
@@ -108,26 +99,19 @@ final class ManagerService {
      * @param  array $classNameList
      * @return ManagerService
      */
-    public function addAll(array $classNameList) {
-
+    public function addAll(array $classNameList)
+    {
         foreach ($classNameList as $className) {
-
             if (is_string($className)) {
-
                 $this->add($className);
-
-            } else if (is_array($className)) {
-
+            } elseif (is_array($className)) {
                 $_className = array_shift($className);
                 $args = count($className) > 0 ? $className : [];
                 $this->add($_className, $args);
-
             }
-
         }
 
         return $this;
-
     }
 
     /**
@@ -136,8 +120,8 @@ final class ManagerService {
      * @param  Command $command
      * @return ManagerService
      */
-    public function addCommand($className) {
-
+    public function addCommand($className)
+    {
         $reflector = new ReflectionClass((string)$className);
 
         if (!$reflector->implementsInterface(Command::class)) {
@@ -149,7 +133,6 @@ final class ManagerService {
         WP_CLI::add_command((string)$command, $command);
 
         return $this;
-
     }
 
     /**
@@ -158,8 +141,8 @@ final class ManagerService {
      * @param  array $commands
      * @return ManagerService
      */
-    public function addAllCommands(array $classNames) {
-
+    public function addAllCommands(array $classNames)
+    {
         if (count($classNames) > 0) {
             foreach ($classNames as $className) {
                 $this->addCommand($className);
@@ -167,7 +150,6 @@ final class ManagerService {
         }
 
         return $this;
-
     }
 
     /**
@@ -175,12 +157,10 @@ final class ManagerService {
      *
      * @return void
      */
-    public function run() {
-
+    public function run()
+    {
         foreach ($this->managers as $manager) {
             $manager->run();
         }
-
     }
-
 }

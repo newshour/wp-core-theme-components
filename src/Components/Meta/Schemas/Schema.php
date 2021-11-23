@@ -9,8 +9,8 @@ namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 /**
  * schema.org data structures.
  */
-interface Schema {
-
+interface Schema
+{
     /**
      * Return the schema data as a dictionary.
      *
@@ -24,5 +24,4 @@ interface Schema {
      * @return boolean
      */
     public function isEmpty(): bool;
-
 }

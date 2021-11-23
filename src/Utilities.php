@@ -7,12 +7,9 @@
 namespace NewsHour\WPCoreThemeComponents;
 
 use Exception;
-
 use Carbon\Carbon;
-
 use Timber\Image;
 use Timber\TextHelper;
-
 use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
 
 /**
@@ -20,21 +17,20 @@ use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
  *
  * @final
  */
-final class Utilities {
-
+final class Utilities
+{
     /**
      * @param string $name
      * @param string $value
      * @return string
      */
-    public static function createMetaTag($name, $value): string {
-
+    public static function createMetaTag($name, $value): string
+    {
         if (empty($name) || empty($value)) {
             return '';
         }
 
         return sprintf('<meta name="%s" content="%s" />', $name, esc_html(trim($value)));
-
     }
 
     /**
@@ -42,14 +38,13 @@ final class Utilities {
      * @param string $value
      * @return string
      */
-    public static function createMetaPropertyTag($name, $value): string {
-
+    public static function createMetaPropertyTag($name, $value): string
+    {
         if (empty($name) || empty($value)) {
             return '';
         }
 
         return sprintf('<meta property="%s" content="%s" />', $name, esc_html(trim($value)));
-
     }
 
     /**
@@ -57,14 +52,13 @@ final class Utilities {
      * @param string $value
      * @return string
      */
-    public static function createLdJsonTag(array $src): string {
-
+    public static function createLdJsonTag(array $src): string
+    {
         if (empty($src)) {
             return '';
         }
 
         return sprintf('<script type="application/ld+json">%s</script>', json_encode($src));
-
     }
 
     /**
@@ -74,8 +68,8 @@ final class Utilities {
      * @param string $title
      * @return string
      */
-    public static function createLinkTag($rel, $url, $type = '', $title = ''): string {
-
+    public static function createLinkTag($rel, $url, $type = '', $title = ''): string
+    {
         if (empty($rel) || empty($url)) {
             return '';
         }
@@ -100,7 +94,6 @@ final class Utilities {
         }
 
         return '<link ' . implode(' ', $attrHtml) . ' />';
-
     }
 
     /**
@@ -111,14 +104,13 @@ final class Utilities {
      * @param string $token Optional
      * @return array
      */
-    public static function splitter($str, $token = ' '): array {
-
+    public static function splitter($str, $token = ' '): array
+    {
         if (empty($str) || !is_string($str)) {
             return [];
         }
 
         try {
-
             $xstr = explode($token, $str);
 
             if ($xstr !== false) {
@@ -128,18 +120,15 @@ final class Utilities {
                 );
             }
 
-        // PHP 8 will throw ValueError.
+            // PHP 8 will throw ValueError.
         } catch (Exception $e) {
-
             trigger_error(
                 $e->getMessage(),
                 E_USER_WARNING
             );
-
         }
 
         return $xstr;
-
     }
 
     /**
@@ -148,8 +137,8 @@ final class Utilities {
      * @param string $dim
      * @return int
      */
-    public static function getImageDimension(Image $image, $size, $dim): int {
-
+    public static function getImageDimension(Image $image, $size, $dim): int
+    {
         $sizes = $image->sizes;
 
         if (isset($sizes[$size][$dim])) {
@@ -157,7 +146,6 @@ final class Utilities {
         }
 
         return 0;
-
     }
 
     /**
@@ -167,8 +155,8 @@ final class Utilities {
      * @param array $array
      * @return boolean
      */
-    public static function hasKey($key, array $array): bool {
-
+    public static function hasKey($key, array $array): bool
+    {
         // Do some quick checks first.
         if (count($array) < 1) {
             return false;
@@ -188,7 +176,6 @@ final class Utilities {
         }
 
         return false;
-
     }
 
     /**
@@ -198,15 +185,14 @@ final class Utilities {
      * @param string $path The relative path of the asset.
      * @return string
      */
-    public static function staticUrl($path) {
-
+    public static function staticUrl($path)
+    {
         if (defined('ASSETS_URL')) {
             $_path = TextHelper::starts_with($path, '/') ? $path : '/' . $path;
             return rtrim(trim(ASSETS_URL), '/') . PackageFactory::get()->getUrl($_path);
         }
 
         return PackageFactory::get()->getUrl($path);
-
     }
 
     /**
@@ -218,8 +204,8 @@ final class Utilities {
      * @param string $timezone Optional, default is wp_timezone().
      * @return Carbon
      */
-    public static function toCarbonObj($value, $timezone = null): Carbon {
-
+    public static function toCarbonObj($value, $timezone = null): Carbon
+    {
         if ($value instanceof Carbon) {
             return $value;
         }
@@ -237,7 +223,5 @@ final class Utilities {
         }
 
         return Carbon::createFromTimestamp(strtotime($value), $timezone);
-
     }
-
 }

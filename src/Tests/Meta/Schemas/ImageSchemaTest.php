@@ -7,7 +7,6 @@
 namespace NewsHour\WPCoreThemeComponents\Tests\Meta\Schemas;
 
 use PHPUnit\Framework\TestCase;
-
 use NewsHour\WPCoreThemeComponents\Components\Meta\Schemas\ImageSchema;
 
 class ImageSchemaTest extends TestCase

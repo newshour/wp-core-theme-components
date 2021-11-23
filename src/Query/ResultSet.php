@@ -9,8 +9,8 @@ namespace NewsHour\WPCoreThemeComponents\Query;
 /**
  * ResultSets provide a fluent interface to fetching data.
  */
-interface ResultSet {
-
+interface ResultSet
+{
     /**
      * @return string
      */
@@ -152,5 +152,4 @@ interface ResultSet {
      * @return ResultSet
      */
     public function page($num): ResultSet;
-
 }

@@ -7,15 +7,12 @@
 namespace NewsHour\WPCoreThemeComponents\Controllers;
 
 use InvalidArgumentException;
-
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Timber\Loader;
 use Timber\Timber;
-
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 
@@ -24,8 +21,8 @@ use NewsHour\WPCoreThemeComponents\Contexts\Context;
  *
  * @abstract
  */
-abstract class Controller {
-
+abstract class Controller
+{
     /**
      * Renders the view as HTML and returns a Response object. Timber template caching parameters
      * can be passed via the $kwargs argument.
@@ -37,8 +34,8 @@ abstract class Controller {
      * @param array $kwargs
      * @return Response|null
      */
-    protected function render(string $template, Context $context, array $kwargs = []): ?Response {
-
+    protected function render(string $template, Context $context, array $kwargs = []): ?Response
+    {
         $expires = isset($kwargs['expires']) && $kwargs['expires'] > -1 ? $kwargs['expires'] : false;
         $cacheMode = empty($kwargs['cache_mode']) ? Loader::CACHE_USE_DEFAULT : $kwargs['cache_mode'];
         $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
@@ -58,6 +55,7 @@ abstract class Controller {
         if ($content === false) {
             trigger_error(
                 sprintf(
+                    // phpcs:ignore
                     'The template "%s" could not be rendered. Please make sure the template exists and is a valid Twig file.',
                     $template
                 ),
@@ -70,19 +68,14 @@ abstract class Controller {
         }
 
         try {
-
             // Build the response.
             $response = new Response($content, $statusCode, $headers);
             $response->prepare($context->getRequest());
 
             return $response;
-
         } catch (InvalidArgumentException $iae) {
-
             trigger_error($iae);
-
         }
-
     }
 
     /**
@@ -93,8 +86,8 @@ abstract class Controller {
      * @param string $contentDisposition Optional, default is attachment.
      * @return BinaryFileResponse|null
      */
-    public function renderFile($file, $filename = '', $contentDisposition = 'attachment'): ?BinaryFileResponse {
-
+    public function renderFile($file, $filename = '', $contentDisposition = 'attachment'): ?BinaryFileResponse
+    {
         if (!is_file($file)) {
             wp_die('File Not Found', 'File Not Found', ['response' => 404]);
         }
@@ -103,7 +96,6 @@ abstract class Controller {
         $response->setContentDisposition($contentDisposition, empty($filename) ? basename($file) : $filename);
 
         return $response;
-
     }
 
     /**
@@ -116,8 +108,8 @@ abstract class Controller {
      * @param array $kwargs
      * @return Response|null
      */
-    protected function renderJson(array $data, Context $context, array $kwargs = []): ?Response {
-
+    protected function renderJson(array $data, Context $context, array $kwargs = []): ?Response
+    {
         $options = empty($kwargs['json_encode_options']) ? 0 : $kwargs['json_encode_options'];
         $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
         $headers = empty($kwargs['headers']) ? [] : $kwargs['headers'];
@@ -130,7 +122,6 @@ abstract class Controller {
         }
 
         try {
-
             // Build the JSON.
             $content = wp_json_encode($data, (int)$options);
 
@@ -144,13 +135,9 @@ abstract class Controller {
             $response->prepare($context->getRequest());
 
             return $response;
-
         } catch (InvalidArgumentException $iae) {
-
             trigger_error($iae);
-
         }
-
     }
 
     /**
@@ -160,8 +147,8 @@ abstract class Controller {
      * @param array $headers
      * @return void
      */
-    private function addCorsHeaders(Request $request, array &$headers): void {
-
+    private function addCorsHeaders(Request $request, array &$headers): void
+    {
         $origins = get_allowed_http_origins();
 
         if (!is_array($origins)) {
@@ -173,20 +160,15 @@ abstract class Controller {
         $allowed = '';
 
         if (in_array('*', $origins)) {
-
             $allowed = '*';
-
         } elseif (!is_null($clientOrigin) && in_array($clientOrigin, $origins)) {
-
             $allowed = $clientOrigin;
-
         }
 
         if (!empty($allowed)) {
             $headers['Vary'] = 'Origin';
             $headers['Access-Control-Allow-Origin'] = $allowed;
         }
-
     }
 
     /**
@@ -195,8 +177,8 @@ abstract class Controller {
      *
      * @return array
      */
-    private function getQueuedHeaders(): array {
-
+    private function getQueuedHeaders(): array
+    {
         $queued = headers_list();
         $keyed = [];
 
@@ -208,7 +190,5 @@ abstract class Controller {
         }
 
         return $keyed;
-
     }
-
 }

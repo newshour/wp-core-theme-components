@@ -9,11 +9,10 @@ namespace NewsHour\WPCoreThemeComponents\Commands;
 /**
  * Interface for building WP CLI commands.
  */
-interface Command {
-
+interface Command
+{
     /**
      * @return string
      */
     public function __toString();
-
 }

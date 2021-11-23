@@ -8,7 +8,6 @@ namespace NewsHour\WPCoreThemeComponents\Containers;
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Request;
-
 use NewsHour\WPCoreThemeComponents\Components\Meta\MetaFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
 use NewsHour\WPCoreThemeComponents\Contexts\ContextFactory;
@@ -20,7 +19,6 @@ use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
  * @param ContainerConfigurator $configurator
  */
 return function (ContainerConfigurator $configurator) {
-
     $services = $configurator->services()->defaults()->autowire();
 
     // Use factory class for Request objs.
@@ -40,5 +38,4 @@ return function (ContainerConfigurator $configurator) {
         'App\\Themes\\CoreTheme\\Http\\Controllers\\',
         trailingslashit(get_template_directory()) . 'src/Http/Controllers/*'
     )->public();
-
 };

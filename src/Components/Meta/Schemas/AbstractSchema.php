@@ -7,22 +7,18 @@
 namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 
 use SplObjectStorage;
-
 use Carbon\Carbon;
-
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-
 use Timber\Image;
 use Timber\TextHelper;
-
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Components\Component;
 
-abstract class AbstractSchema implements Schema, Component {
-
+abstract class AbstractSchema implements Schema, Component
+{
     private array $images = [];
     private array $sameAs = [];
     private bool $asHtml = false;
@@ -31,32 +27,30 @@ abstract class AbstractSchema implements Schema, Component {
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         if ($this->asHtml) {
             return Utilities::createLdJsonTag($this->toArray());
         }
 
         return $this->render();
-
     }
 
     /**
      * @return string
      */
-    public function render(): string {
-
+    public function render(): string
+    {
         $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncoder()]);
 
         return $serializer->serialize($this->toArray(), 'json');
-
     }
 
     /**
      * @return array
      */
-    public function toArray(): array {
-
+    public function toArray(): array
+    {
         $final = [];
 
         if ($this->isEmpty() || !isset($this->parameterBag)) {
@@ -64,36 +58,25 @@ abstract class AbstractSchema implements Schema, Component {
         }
 
         foreach ($this->parameterBag as $k => $v) {
-
             if ($v instanceof Schema) {
-
                 $final[$k] = $v->toArray();
-
             } elseif ($v instanceof SchemaCollection && $v->count() > 0) {
-
                 $final[$k] = $v->toArray();
-
             } elseif ($v instanceof Carbon) {
-
                 $final[$k] = $v->format('c');
-
             } else {
-
                 $final[$k] = $v;
-
             }
-
         }
 
         return $final;
-
     }
 
     /**
      * @return boolean
      */
-    public function isEmpty(): bool {
-
+    public function isEmpty(): bool
+    {
         if ($this->parameters()->count() < 1) {
             return true;
         }
@@ -107,7 +90,6 @@ abstract class AbstractSchema implements Schema, Component {
         }
 
         return true;
-
     }
 
     /**
@@ -117,20 +99,15 @@ abstract class AbstractSchema implements Schema, Component {
      * @param Schema|null $schema
      * @return self
      */
-    public function attachSchema(string $key, ?Schema $schema = null): self {
-
+    public function attachSchema(string $key, ?Schema $schema = null): self
+    {
         if ($schema->isEmpty()) {
-
             $this->parameters()->remove($key);
-
         } else {
-
             $this->parameters()->set($key, $schema);
-
         }
 
         return $this;
-
     }
 
     /**
@@ -138,10 +115,9 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return Carbon|null
      */
-    public function getDatePublished(): ?Carbon {
-
+    public function getDatePublished(): ?Carbon
+    {
         return $this->parameters()->get('datePublished', null);
-
     }
 
     /**
@@ -151,23 +127,18 @@ abstract class AbstractSchema implements Schema, Component {
      * @param string $timezone Optional
      * @return self
      */
-    public function setDatePublished($datePublished, $timezone = '') {
-
+    public function setDatePublished($datePublished, $timezone = '')
+    {
         if (empty($datePublished)) {
-
             $this->parameters()->remove('datePublished');
-
         } else {
-
             $this->parameters()->set(
                 'datePublished',
                 Utilities::toCarbonObj($datePublished, $timezone)
             );
-
         }
 
         return $this;
-
     }
 
     /**
@@ -175,10 +146,9 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return Carbon|null
      */
-    public function getDateModified(): ?Carbon {
-
+    public function getDateModified(): ?Carbon
+    {
         return $this->parameters()->get('dateModified', null);
-
     }
 
     /**
@@ -188,23 +158,18 @@ abstract class AbstractSchema implements Schema, Component {
      * @param string $timezone Optional
      * @return self
      */
-    public function setDateModified($dateModified, $timezone = ''): self {
-
+    public function setDateModified($dateModified, $timezone = ''): self
+    {
         if (empty($dateModified)) {
-
             $this->parameters()->remove('dateModified');
-
         } else {
-
             $this->parameters()->set(
                 'dateModified',
                 Utilities::toCarbonObj($dateModified, $timezone)
             );
-
         }
 
         return $this;
-
     }
 
     /**
@@ -212,10 +177,9 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return string
      */
-    public function getInLanguage(): string {
-
+    public function getInLanguage(): string
+    {
         return $this->parameters()->get('inLanguage', '');
-
     }
 
     /**
@@ -224,20 +188,15 @@ abstract class AbstractSchema implements Schema, Component {
      * @param string|null $inLanguage
      * @return self
      */
-    public function setInLanguage($inLanguage): self {
-
+    public function setInLanguage($inLanguage): self
+    {
         if (empty($inLanguage)) {
-
             $this->parameters()->remove('inLanguage');
-
         } else {
-
             $this->parameters()->set('inLanguage', (string) $inLanguage);
-
         }
 
         return $this;
-
     }
 
     /**
@@ -245,18 +204,17 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return array
      */
-    public function getSameAs(): array {
-
+    public function getSameAs(): array
+    {
         return $this->sameAs;
-
     }
 
     /**
      * @param array|string $url
      * @return self
      */
-    public function addSameAs($url): self {
-
+    public function addSameAs($url): self
+    {
         if (empty($url)) {
             return $this;
         }
@@ -275,7 +233,6 @@ abstract class AbstractSchema implements Schema, Component {
         }
 
         return $this;
-
     }
 
     /**
@@ -284,8 +241,8 @@ abstract class AbstractSchema implements Schema, Component {
      * @param OrganizationSchema|string|null $publisher
      * @return self
      */
-    public function setPublisher($publisher = null): self {
-
+    public function setPublisher($publisher = null): self
+    {
         if (is_string($publisher)) {
             $organization = new OrganizationSchema();
             $organization->setName($publisher);
@@ -295,18 +252,16 @@ abstract class AbstractSchema implements Schema, Component {
         $this->attachSchema('publisher', $publisher);
 
         return $this;
-
     }
 
-   /**
-     * Get the value of description
-     *
-     * @return string
-     */
-    public function getDescription(): string {
-
+    /**
+      * Get the value of description
+      *
+      * @return string
+      */
+    public function getDescription(): string
+    {
         return $this->parameters()->get('description', '');
-
     }
 
     /**
@@ -315,31 +270,25 @@ abstract class AbstractSchema implements Schema, Component {
      * @param string|null $description
      * @return self
      */
-    public function setDescription($description): self {
-
+    public function setDescription($description): self
+    {
         if (empty($description)) {
-
             $this->parameters()->remove('description');
-
         } else {
-
             $this->parameters()->set('description', (string) $description);
-
         }
 
         return $this;
-
     }
 
-   /**
-     * Returns a collection of PersonSchema objects (authors).
-     *
-     * @return SchemaCollection
-     */
-    public function getAuthors(): SplObjectStorage {
-
+    /**
+      * Returns a collection of PersonSchema objects (authors).
+      *
+      * @return SchemaCollection
+      */
+    public function getAuthors(): SplObjectStorage
+    {
         return $this->parameters()->get('author', new SchemaCollection());
-
     }
 
     /**
@@ -348,14 +297,13 @@ abstract class AbstractSchema implements Schema, Component {
      * @param PersonSchema $person
      * @return self
      */
-    public function addAuthor(PersonSchema $person): self {
-
+    public function addAuthor(PersonSchema $person): self
+    {
         if (!$this->getAuthors()->contains($person)) {
             $this->getAuthors()->attach($person);
         }
 
         return $this;
-
     }
 
     /**
@@ -363,10 +311,9 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return string
      */
-    public function getUrl(): string {
-
+    public function getUrl(): string
+    {
         return $this->parameters()->get('url', '');
-
     }
 
     /**
@@ -375,47 +322,37 @@ abstract class AbstractSchema implements Schema, Component {
      * @param string|null $url
      * @return self
      */
-    public function setUrl($url): self {
-
+    public function setUrl($url): self
+    {
         if (empty($url)) {
-
             $this->parameters()->remove('url');
-
         } else {
-
             $this->parameters()->set('url', (string) $url);
-
         }
 
         return $this;
-
     }
 
     /**
      * @return array
      */
-    public function getImages(): array {
-
+    public function getImages(): array
+    {
         return $this->images;
-
     }
 
     /**
      * @param ImageSchema|Image|string $image
      * @return self
      */
-    public function addImage($image): self {
-
+    public function addImage($image): self
+    {
         $url = '';
 
         if (is_string($image)) {
-
             $url = $image;
-
         } elseif ($image instanceof ImageSchema) {
-
             $url = $image->getUrl();
-
         }
 
         if (empty($url)) {
@@ -430,7 +367,6 @@ abstract class AbstractSchema implements Schema, Component {
         }
 
         return $this;
-
     }
 
     /**
@@ -438,10 +374,9 @@ abstract class AbstractSchema implements Schema, Component {
      *
      * @return string
      */
-    public function getThumbnail(): string {
-
+    public function getThumbnail(): string
+    {
         return $$this->parameters()->get('thumbnailUrl', '');
-
     }
 
     /**
@@ -450,64 +385,55 @@ abstract class AbstractSchema implements Schema, Component {
      * @param mixed ImageSchema|Image|string $thumbnail
      * @return self
      */
-    public function setThumbnail($thumbnail = null): self {
-
+    public function setThumbnail($thumbnail = null): self
+    {
         $schema = $this->imageToSchema($thumbnail);
 
         if (empty($schema) || $schema->isEmpty()) {
-
             $this->parameters()->remove('thumbnailUrl');
-
         } else {
-
             $this->parameters()->set('thumbnailUrl', $schema->getUrl());
-
         }
 
         return $this;
-
     }
 
     /**
      * @param Schema|null $potentialAction
      * @return self
      */
-    public function setPotentialAction(?Schema $potentialAction = null): self {
-
+    public function setPotentialAction(?Schema $potentialAction = null): self
+    {
         $this->attachSchema('potentialAction', $potentialAction);
 
         return $this;
-
     }
 
     /**
      * @return OrganizationSchema
      */
-    public function getOrganization(): OrganizationSchema {
-
+    public function getOrganization(): OrganizationSchema
+    {
         return $this->parameters()->get('organization', new OrganizationSchema());
-
     }
 
     /**
      * @param OrganizationSchema|null $organization
      * @return self
      */
-    public function setOrganization(?OrganizationSchema $organization = null): self {
-
+    public function setOrganization(?OrganizationSchema $organization = null): self
+    {
         $this->attachSchema('organization', $organization);
 
         return $this;
-
     }
 
     /**
      * @return boolean
      */
-    public function getAsHtml(): bool {
-
+    public function getAsHtml(): bool
+    {
         return $this->asHtml;
-
     }
 
     /**
@@ -516,35 +442,32 @@ abstract class AbstractSchema implements Schema, Component {
      * @param bool $asHtml Optional, default is true.
      * @return self
      */
-    public function asHtml($asHtml = true): self {
-
+    public function asHtml($asHtml = true): self
+    {
         $this->asHtml = (bool) $asHtml;
 
         return $this;
-
     }
 
-    protected function parameters(): ParameterBag {
-
+    protected function parameters(): ParameterBag
+    {
         if (!isset($this->parameterBag)) {
             $this->parameterBag = new ParameterBag();
         }
 
         return $this->parameterBag;
-
     }
 
     /**
      * @param array $dict
      * @return array
      */
-    protected function cleanSchemaDict(array $dict): array {
-
+    protected function cleanSchemaDict(array $dict): array
+    {
         $cleaned = array_filter($dict);
         array_walk($cleaned, fn (&$v) => is_string($v) ? trim($v) : $v);
 
         return $cleaned;
-
     }
 
     /**
@@ -553,10 +476,9 @@ abstract class AbstractSchema implements Schema, Component {
      * @param Image|string $image
      * @return ImageSchema|null
      */
-    private function imageToSchema($image): ?ImageSchema {
-
+    private function imageToSchema($image): ?ImageSchema
+    {
         if (!empty($image)) {
-
             if ($image instanceof ImageSchema) {
                 return $image;
             }
@@ -570,11 +492,8 @@ abstract class AbstractSchema implements Schema, Component {
                 $schema->setUrl($image);
                 return $schema;
             }
-
         }
 
         return null;
-
     }
-
 }

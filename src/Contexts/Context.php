@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @version 1.0.0
  */
-interface Context {
-
+interface Context
+{
     /**
      * Returns the context dictionary.
      *
@@ -28,5 +28,4 @@ interface Context {
      * @return Request
      */
     public function getRequest(): Request;
-
 }

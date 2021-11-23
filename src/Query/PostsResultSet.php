@@ -7,9 +7,7 @@
 namespace NewsHour\WPCoreThemeComponents\Query;
 
 use WP_Query;
-
 use Carbon\Carbon;
-
 use Timber\PostQuery;
 
 /**
@@ -29,8 +27,8 @@ use Timber\PostQuery;
  *
  * @final
  */
-final class PostsResultSet implements ResultSet {
-
+final class PostsResultSet implements ResultSet
+{
     // Stores the cache expires time in seconds. -1 is no cache, 0 is cache forever.
     private int $cacheInSeconds = -1;
 
@@ -47,8 +45,8 @@ final class PostsResultSet implements ResultSet {
      * @param string $postClass
      * @param array $queryParams
      */
-    private function __construct(string $postClass = '', array $queryParams = []) {
-
+    private function __construct(string $postClass = '', array $queryParams = [])
+    {
         $initial = [
             'order' => 'DESC',
             'orderby' => 'ID',
@@ -59,20 +57,19 @@ final class PostsResultSet implements ResultSet {
         $this->postClass = empty($postClass) ? '\Timber\Post' : $postClass;
         $this->queryParams = array_merge($initial, $queryParams);
         $this->queryParams['post_type'] = $this->getPostTypeValue($postClass);
-
     }
 
     /**
      * @return string
      */
-    public function __toString(): string {
-
+    public function __toString(): string
+    {
         return sprintf(
             '%s<%s> [query params: %s]',
-            self::class, $this->postClass,
+            self::class,
+            $this->postClass,
             http_build_query($this->queryParams)
         );
-
     }
 
     /**
@@ -82,10 +79,9 @@ final class PostsResultSet implements ResultSet {
      * @param array $params
      * @return self
      */
-    public static function factory($postClass = '', array $params = []): self {
-
+    public static function factory($postClass = '', array $params = []): self
+    {
         return new PostsResultSet($postClass, $params);
-
     }
 
     // ------------------------------------------------------------------------
@@ -99,8 +95,8 @@ final class PostsResultSet implements ResultSet {
      * @category Database Read
      * @return array
      */
-    public function get(): array {
-
+    public function get(): array
+    {
         if (!empty($this->data)) {
             return $this->data;
         }
@@ -108,7 +104,6 @@ final class PostsResultSet implements ResultSet {
         $useCache = $this->cacheInSeconds > -1 ? true : false;
 
         if ($useCache) {
-
             $cacheKey = __FUNCTION__ . http_build_query($this->queryParams);
             $cacheGroup = __CLASS__ . "<{$this->postClass}>";
             $cachedPosts = wp_cache_get($cacheKey, $cacheGroup);
@@ -117,18 +112,13 @@ final class PostsResultSet implements ResultSet {
                 $this->data = $cachedPosts;
                 return $this->data;
             }
-
         }
 
         // If 'fields' was passed and is not set to 'all', we need to use the WP_Query class.
         if (!empty($this->queryParams['fields']) && strcasecmp($this->queryParams['fields'], 'all') != 0) {
-
             $this->data = (new WP_Query($this->queryParams))->get_posts();
-
         } else {
-
             $this->data = (new PostQuery($this->queryParams, $this->postClass))->get_posts();
-
         }
 
         if ($useCache && count($this->data) > 0) {
@@ -136,7 +126,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return $this->data;
-
     }
 
     /**
@@ -146,14 +135,13 @@ final class PostsResultSet implements ResultSet {
      * @param int $pk
      * @return array
      */
-    public function pk($pk): array {
-
+    public function pk($pk): array
+    {
         $this->queryParams = [
             'p' => is_numeric($pk) ? (int) $pk : 0
         ];
 
         return $this->limit(1)->get();
-
     }
 
     /**
@@ -162,10 +150,9 @@ final class PostsResultSet implements ResultSet {
      * @param array|int $pid The post ID(s).
      * @return array
      */
-    public function id($pid): array {
-
+    public function id($pid): array
+    {
         if (is_array($pid) && count($pid) > 0) {
-
             $clean = array_filter($pid, 'is_numeric');
             $cleanCount = count($clean);
 
@@ -181,7 +168,6 @@ final class PostsResultSet implements ResultSet {
             $this->queryParams['ignore_sticky_posts'] = true;
 
             return $this->get();
-
         }
 
         if (is_numeric($pid)) {
@@ -189,7 +175,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return [];
-
     }
 
     /**
@@ -197,10 +182,9 @@ final class PostsResultSet implements ResultSet {
      *
      * @return array
      */
-    public function all(): array {
-
+    public function all(): array
+    {
         return $this->limit(-1)->get();
-
     }
 
     /**
@@ -209,10 +193,9 @@ final class PostsResultSet implements ResultSet {
      * @category Database Read
      * @return array
      */
-    public function first(): array {
-
+    public function first(): array
+    {
         return $this->limit(1)->get();
-
     }
 
     /**
@@ -223,8 +206,8 @@ final class PostsResultSet implements ResultSet {
      * @param int $start
      * @return array
      */
-    public function slice($start): array {
-
+    public function slice($start): array
+    {
         $localArray = $this->get();
 
         if (count($localArray) < 1) {
@@ -232,7 +215,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return array_slice($localArray, $start);
-
     }
 
     /**
@@ -242,8 +224,8 @@ final class PostsResultSet implements ResultSet {
      * @param integer $andSlice Optional
      * @return array
      */
-    public function shuffle($andSlice = 0): array {
-
+    public function shuffle($andSlice = 0): array
+    {
         $localArray = $this->get();
 
         if (count($localArray) < 1) {
@@ -257,7 +239,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return array_slice($localArray, 0, $andSlice);
-
     }
 
     // ------------------------------------------------------------------------
@@ -269,20 +250,18 @@ final class PostsResultSet implements ResultSet {
      *
      * @return self
      */
-    public function any(): self {
-
+    public function any(): self
+    {
         $this->queryParams['post_status'] = 'any';
         return $this;
-
     }
 
     /**
      * @return self
      */
-    public function asc(): self {
-
+    public function asc(): self
+    {
         return $this->order('ASC');
-
     }
 
     /**
@@ -292,11 +271,10 @@ final class PostsResultSet implements ResultSet {
      * @param int $seconds
      * @return self
      */
-    public function cache($seconds): self {
-
+    public function cache($seconds): self
+    {
         $this->cacheInSeconds = (int)$seconds < 0 ? -1 : (int)$seconds;
         return $this;
-
     }
 
     /**
@@ -304,10 +282,9 @@ final class PostsResultSet implements ResultSet {
      *
      * @return self
      */
-    public function cacheForever(): self {
-
+    public function cacheForever(): self
+    {
         return $this->cache(0);
-
     }
 
     /**
@@ -318,8 +295,8 @@ final class PostsResultSet implements ResultSet {
      * @param boolean $inclusive Optional, default is true.
      * @return self
      */
-    public function dateRange(Carbon $start, Carbon $end = null, $inclusive = true): self {
-
+    public function dateRange(Carbon $start, Carbon $end = null, $inclusive = true): self
+    {
         $dateQuery = [
             'inclusive' => (bool) $inclusive,
             'after' => $start->toIso8601String()
@@ -333,16 +310,14 @@ final class PostsResultSet implements ResultSet {
         $this->limit(-1);
 
         return $this;
-
     }
 
     /**
      * @return self
      */
-    public function desc(): self {
-
+    public function desc(): self
+    {
         return $this->order('DESC');
-
     }
 
     /**
@@ -352,8 +327,8 @@ final class PostsResultSet implements ResultSet {
      * @param boolean $parent If true, excludes by parent ID(s).
      * @return self
      */
-    public function exclude(array $ids, $parent = false): self {
-
+    public function exclude(array $ids, $parent = false): self
+    {
         if (count($ids) < 1) {
             return $this;
         }
@@ -369,7 +344,6 @@ final class PostsResultSet implements ResultSet {
         $this->limit(-1);
 
         return $this;
-
     }
 
     /**
@@ -382,10 +356,9 @@ final class PostsResultSet implements ResultSet {
      * @param array $params
      * @return self
      */
-    public function filter(array $params): self {
-
+    public function filter(array $params): self
+    {
         if (isset($params['post_type'])) {
-
             $message = 'Setting the "post_type" parameter as a filter query is redundant.';
 
             if (strcasecmp($params['post_type'], $this->queryParams['post_type']) != 0) {
@@ -398,12 +371,10 @@ final class PostsResultSet implements ResultSet {
 
             unset($params['post_type']);
             trigger_error($message);
-
         }
 
         $this->queryParams = array_merge($this->queryParams, $params);
         return $this;
-
     }
 
     /**
@@ -411,11 +382,10 @@ final class PostsResultSet implements ResultSet {
      *
      * @return self
      */
-    public function idsOnly(): self {
-
+    public function idsOnly(): self
+    {
         $this->queryParams['fields'] = 'ids';
         return $this;
-
     }
 
     /**
@@ -424,10 +394,9 @@ final class PostsResultSet implements ResultSet {
      * @deprecated 1.0.1
      * @return self
      */
-    public function ids(): self {
-
+    public function ids(): self
+    {
         return $this->idsOnly();
-
     }
 
     /**
@@ -437,8 +406,8 @@ final class PostsResultSet implements ResultSet {
      * @param boolean $ignoreStickyPosts Optional
      * @return self
      */
-    public function include(array $ids, $parent = false): self {
-
+    public function include(array $ids, $parent = false): self
+    {
         if (count($ids) < 1) {
             return $this;
         }
@@ -454,7 +423,6 @@ final class PostsResultSet implements ResultSet {
         $this->limit(-1);
 
         return $this;
-
     }
 
     /**
@@ -462,11 +430,10 @@ final class PostsResultSet implements ResultSet {
      *
      * @return self
      */
-    public function ignoreStickyPosts(): self {
-
+    public function ignoreStickyPosts(): self
+    {
         $this->queryParams['ignore_sticky_posts'] = true;
         return $this;
-
     }
 
     /**
@@ -476,8 +443,8 @@ final class PostsResultSet implements ResultSet {
      * @param bool $ignoreStickyPosts Optional, default is false.
      * @return self
      */
-    public function latest($limit = 0, $ignoreStickyPosts = false): self {
-
+    public function latest($limit = 0, $ignoreStickyPosts = false): self
+    {
         $_limit = empty($limit) ? (int)get_option('posts_per_page') : (int)$limit;
         $this->orderBy('post_date')->limit($_limit);
 
@@ -486,7 +453,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return $this;
-
     }
 
     /**
@@ -495,11 +461,10 @@ final class PostsResultSet implements ResultSet {
      * @param int $limit
      * @return self
      */
-    public function limit($limit): self {
-
+    public function limit($limit): self
+    {
         $this->queryParams['posts_per_page'] = (int)$limit;
         return $this;
-
     }
 
     /**
@@ -507,10 +472,9 @@ final class PostsResultSet implements ResultSet {
      *
      * @return self
      */
-    public function nocache(): self {
-
+    public function nocache(): self
+    {
         return $this->cache(0);
-
     }
 
     /**
@@ -519,8 +483,8 @@ final class PostsResultSet implements ResultSet {
      * @param string $order
      * @return self
      */
-    public function order($order = 'DESC'): self {
-
+    public function order($order = 'DESC'): self
+    {
         $_order = strtoupper($order);
 
         if (in_array($_order, ['DESC', 'ASC'])) {
@@ -528,7 +492,6 @@ final class PostsResultSet implements ResultSet {
         }
 
         return $this;
-
     }
 
     /**
@@ -537,14 +500,13 @@ final class PostsResultSet implements ResultSet {
      * @param string $by
      * @return self
      */
-    public function orderBy($by): self {
-
+    public function orderBy($by): self
+    {
         if (!empty($by)) {
             $this->queryParams['orderby'] = $by;
         }
 
         return $this;
-
     }
 
     /**
@@ -553,15 +515,14 @@ final class PostsResultSet implements ResultSet {
      * @param int $num
      * @return self
      */
-    public function page($num): self {
-
+    public function page($num): self
+    {
         if ((int)$num > -1) {
             $this->queryParams['paged'] = (int)$num;
             $this->queryParams['no_found_rows'] = false;
         }
 
         return $this;
-
     }
 
     /**
@@ -570,22 +531,18 @@ final class PostsResultSet implements ResultSet {
      * @param string $postClass
      * @return string
      */
-    private function getPostTypeValue($postClass): string {
-
+    private function getPostTypeValue($postClass): string
+    {
         $postClasses = apply_filters('Timber\PostClassMap', []);
 
         if (is_array($postClasses)) {
-
             $table = array_flip($postClasses);
 
             if (!empty($table[$postClass])) {
                 return $table[$postClass];
             }
-
         }
 
         return 'post';
-
     }
-
 }

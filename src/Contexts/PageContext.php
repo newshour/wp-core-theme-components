@@ -13,14 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @version 1.0.0
  */
-class PageContext extends BaseContext {
-
+class PageContext extends BaseContext
+{
     /**
      * @param Request $request
      * @param array $kwargs
      */
-    public function __construct(Request $request, array $kwargs = []) {
-
+    public function __construct(Request $request, array $kwargs = [])
+    {
         parent::__construct($request, $kwargs);
         parent::set('environment', WP_ENV);
 
@@ -33,14 +33,13 @@ class PageContext extends BaseContext {
             'page_title',
             isset($kwargs['page_title']) ? $kwargs['page_title'] : $this->getPageTitle()
         );
-
     }
 
     /**
      * @return string
      */
-    private function getPageTitle(): string {
-
+    private function getPageTitle(): string
+    {
         $title = wp_title(TITLE_SEPARATOR, false, 'right');
 
         if (is_home() || is_front_page()) {
@@ -48,7 +47,5 @@ class PageContext extends BaseContext {
         }
 
         return $title . SITE_NAME;
-
     }
-
 }

@@ -7,14 +7,13 @@
 namespace NewsHour\WPCoreThemeComponents\Contexts;
 
 use Timber\Timber;
-
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
 
 /**
  * Factory class for creating Context objects.
  */
-class ContextFactory {
-
+class ContextFactory
+{
     /**
      * Returns the default context object depending on WP's "template type". If
      * an AJAX request is detected, AjaxContext is returned.
@@ -29,8 +28,8 @@ class ContextFactory {
      *
      * @return Context
      */
-    public static function default(): Context {
-
+    public static function default(): Context
+    {
         if (is_single()) {
             return self::post();
         }
@@ -44,7 +43,6 @@ class ContextFactory {
         }
 
         return self::page();
-
     }
 
     /**
@@ -52,10 +50,9 @@ class ContextFactory {
      *
      * @return Context
      */
-    public static function page(): Context {
-
+    public static function page(): Context
+    {
         return new PageContext(RequestFactory::get(), Timber::context());
-
     }
 
     /**
@@ -63,10 +60,9 @@ class ContextFactory {
      *
      * @return Context
      */
-    public static function post(): Context {
-
+    public static function post(): Context
+    {
         return new PostContext(RequestFactory::get(), Timber::context());
-
     }
 
     /**
@@ -74,10 +70,8 @@ class ContextFactory {
      *
      * @return Context
      */
-    public static function ajax(): Context {
-
+    public static function ajax(): Context
+    {
         return new AjaxContext(RequestFactory::get());
-
     }
-
 }

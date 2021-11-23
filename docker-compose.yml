@@ -10,3 +10,4 @@ services:
             - 80:80
         volumes:
             - .:/opt/wp-core-theme-components
+            - ./web:/var/www/html

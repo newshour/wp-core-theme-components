@@ -12,21 +12,20 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
 /**
  * A factory for generating HtmlMeta objects.
  */
-class MetaFactory {
-
+class MetaFactory
+{
     private static $instance;
 
     /**
      * @return SchemaFactory
      */
-    public static function instance(): MetaFactory {
-
+    public static function instance(): MetaFactory
+    {
         if (self::$instance == null) {
             self::$instance = new MetaFactory();
         }
 
         return self::$instance;
-
     }
 
     /**
@@ -35,28 +34,26 @@ class MetaFactory {
      * @param string $section
      * @return FacebookMeta
      */
-    public function getFacebookMeta(CorePost $post = null, $publisherUrl = '', $section = ''): FacebookMeta {
-
+    public function getFacebookMeta(CorePost $post = null, $publisherUrl = '', $section = ''): FacebookMeta
+    {
         if ($post != null) {
             return FacebookMeta::createFromCorePost($post, $publisherUrl, $section);
         }
 
         return new FacebookMeta();
-
     }
 
     /**
      * @param CorePost|null $post
      * @return PageMeta
      */
-    public function getPageMeta(CorePost $post = null): PageMeta {
-
+    public function getPageMeta(CorePost $post = null): PageMeta
+    {
         if ($post != null) {
             return PageMeta::createFromCorePost($post);
         }
 
         return new PageMeta();
-
     }
 
     /**
@@ -65,23 +62,20 @@ class MetaFactory {
      * @param boolean $useLargeImage
      * @return TwitterMeta
      */
-    public function getTwitterMeta(CorePost $post = null, $twitterHandle = '', $useLargeImage = false): TwitterMeta {
-
+    public function getTwitterMeta(CorePost $post = null, $twitterHandle = '', $useLargeImage = false): TwitterMeta
+    {
         if ($post != null) {
             return TwitterMeta::createFromCorePost($post, $twitterHandle, $useLargeImage);
         }
 
         return new TwitterMeta();
-
     }
 
     /**
      * @return SchemaFactory
      */
-    public function schemas(): SchemaFactory {
-
+    public function schemas(): SchemaFactory
+    {
         return SchemaFactory::instance();
-
     }
-
 }
