@@ -25,7 +25,7 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "NewsHour\\WPCoreThemeComponents\\ContainerFactory::dumpAutoload"
+            "NewsHour\\WPCoreThemeComponents\\Containers\\ContainerFactory::dumpAutoload"
         ],
         "tests": [
             "vendor/bin/phpunit --bootstrap vendor/autoload.php ./src/Tests",
