@@ -50,7 +50,7 @@ class OrganizationSchema extends AbstractSchema {
 
         $headers = [
             '@context' => 'https://schema.org',
-            '@type' => $this->getIsNewsMediaOrg() ? 'NewsMediaOrganization' : self::SCHEMA_TYPE,
+            '@type' => $this->isNewsMediaOrg() ? 'NewsMediaOrganization' : self::SCHEMA_TYPE,
         ];
 
         if (!empty($url = $this->getUrl())) {
@@ -148,7 +148,7 @@ class OrganizationSchema extends AbstractSchema {
     /**
      * @return boolean
      */
-    public function getIsNewsMediaOrg(): bool {
+    public function isNewsMediaOrg(): bool {
 
         return $this->isNewsMediaOrg;
 
@@ -158,7 +158,7 @@ class OrganizationSchema extends AbstractSchema {
      * @param boolean $isNewsMediaOrg
      * @return self
      */
-    public function isNewsMediaOrg($isNewsMediaOrg = true): self {
+    public function setIsNewsMediaOrg($isNewsMediaOrg = true): self {
 
         $this->isNewsMediaOrg = $isNewsMediaOrg;
 
