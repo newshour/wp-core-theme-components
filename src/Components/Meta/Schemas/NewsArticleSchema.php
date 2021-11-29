@@ -34,9 +34,11 @@ class NewsArticleSchema extends AbstractSchema
 
         if (count($authors = $post->authors()) > 0) {
             foreach ($authors as $author) {
-                $obj->addAuthor(
-                    PersonSchema::createFromTimberUser($author)
-                );
+                if (is_object($author)) {
+                    $obj->addAuthor(
+                        PersonSchema::createFromTimberUser($author)
+                    );
+                }
             }
         }
 
