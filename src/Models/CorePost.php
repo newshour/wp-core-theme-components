@@ -10,7 +10,7 @@ use Timber\Post;
 use Timber\TextHelper;
 
 /**
- * An abstract parent class for Model classes.
+ * Provides common methods for CorePost objects.
  *
  * @abstract
  */
@@ -20,7 +20,8 @@ abstract class CorePost extends Post
     private array $storage = [];
 
     /**
-     * Get the post excerpt.
+     * Get the post excerpt by returning the `post_excerpt` property set by Wordpress. If this property
+     * is not set, the content is truncated and used as the excerpt.
      *
      * @return string
      */

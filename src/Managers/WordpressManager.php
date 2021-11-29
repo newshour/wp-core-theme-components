@@ -7,8 +7,9 @@
 namespace NewsHour\WPCoreThemeComponents\Managers;
 
 /**
- * Managers encapsulate various bootstrap routines, configurations and settings for Wordpress by
- * running any assigned tasks.
+ * Managers encapsulate Wordpress filters/actions and perform any other needed
+ * intialization tasks. This allows for storage of all fitler/action callbacks
+ * into organized units.
  */
 interface WordpressManager
 {

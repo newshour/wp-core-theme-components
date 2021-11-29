@@ -8,6 +8,9 @@ namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 
 use Timber\Image;
 
+/**
+ * Represents a subset of the ImageObject schema.
+ */
 class ImageSchema extends AbstractSchema
 {
     public const SCHEMA_TYPE = 'ImageObject';
@@ -36,6 +39,7 @@ class ImageSchema extends AbstractSchema
     }
 
     /**
+     * @inheritDoc
      * @return array
      */
     public function toArray(): array

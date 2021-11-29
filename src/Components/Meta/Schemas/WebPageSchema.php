@@ -9,7 +9,7 @@ namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
 /**
- * Generates schema.org data for WebPage types.
+ * Generates a subset of schema.org data for WebPage schema types.
  */
 class WebPageSchema extends AbstractSchema
 {
@@ -44,9 +44,11 @@ class WebPageSchema extends AbstractSchema
 
         if (count($authors = $post->authors()) > 0) {
             foreach ($authors as $author) {
-                $obj->addAuthor(
-                    PersonSchema::createFromTimberUser($author)
-                );
+                if (is_object($author)) {
+                    $obj->addAuthor(
+                        PersonSchema::createFromTimberUser($author)
+                    );
+                }
             }
         }
 

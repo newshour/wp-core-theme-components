@@ -9,15 +9,12 @@ namespace NewsHour\WPCoreThemeComponents\Managers;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Managers encapsulate Wordpress filters/actions and perform any other needed
- * intialization tasks. This allows you to store all of your fitler/action
- * callbacks into organized units.
+ * Provides common methods used by managers.
  *
  * @abstract
  */
 abstract class Manager implements WordpressManager
 {
-    // Request object.
     private Request $request;
 
     /**
