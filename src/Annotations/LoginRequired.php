@@ -6,8 +6,6 @@
 
 namespace NewsHour\WPCoreThemeComponents\Annotations;
 
-use Symfony\Component\HttpFoundation\Request;
-
 /**
  * Provides an annotation for controller methods to check for logged in users.
  *
