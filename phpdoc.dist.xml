@@ -8,6 +8,9 @@
             <source dsn=".">
                 <path>src</path>
             </source>
+            <ignore hidden="true" symlinks="true">
+                <path>src/Tests/*</path>
+            </ignore>
         </api>
     </version>
 </phpdocumentor>
