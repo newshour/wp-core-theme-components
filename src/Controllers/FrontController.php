@@ -85,7 +85,7 @@ final class FrontController
             );
 
             if ($loginRequired !== null && !$loginRequired->validateUser()) {
-                \wp_die(
+                wp_die(
                     '403 Access Forbidden',
                     'Error',
                     ['response' => 403]
@@ -98,16 +98,12 @@ final class FrontController
                 HttpMethods::class
             );
 
-            $request = RequestFactory::get();
-            $allowed = $request->isMethodSafe();
-
             // Default are "safe" HTTP methods. Allow only if annotation value defines unsafe methods it.
-            if ($httpMethods !== null) {
-                $allowed = $httpMethods->validateMethods($request);
-            }
+            $request = RequestFactory::get();
+            $allowed = ($httpMethods !== null) ? $httpMethods->validateMethods($request) : $request->isMethodSafe();
 
             if (!$allowed) {
-                \wp_die(
+                wp_die(
                     '405 Method Not Allowed',
                     'Error',
                     ['response' => 405]
@@ -124,7 +120,7 @@ final class FrontController
             ]);
 
             if (!($response instanceof Response)) {
-                \wp_die(
+                wp_die(
                     sprintf(
                         '<b>%s</b> did not return a Response object. Did you forget the <i>return</i> statement?',
                         $controllerClass . '::' . $method
