@@ -13,12 +13,38 @@ use Timber\TextHelper;
 use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
 
 /**
- * Utility methods.
+ * Common utility methods.
  *
  * @final
  */
 final class Utilities
 {
+    /**
+     * Returns a unique array of strings. If $removeEmpty is set, the function will remove any empty values
+     * by applying array_filter().
+     *
+     * @param array $strings
+     * @param boolean $removeEmpty Optional, default is false.
+     * @return string[]
+     */
+    public static function stringArrayUnique(array $strings, $removeEmpty = false): array
+    {
+        if (count($strings) < 1) {
+            return [];
+        }
+
+        $filtered = array_map(
+            fn ($item) => is_string($item) || is_numeric($item) ? trim((string) $item) : '',
+            $strings
+        );
+
+        if ($removeEmpty) {
+            $filtered = array_filter($filtered);
+        }
+
+        return array_unique($filtered);
+    }
+
     /**
      * @param string $name
      * @param string $value
@@ -102,7 +128,7 @@ final class Utilities
      *
      * @param string $str
      * @param string $token Optional
-     * @return array
+     * @return string[]
      */
     public static function splitter($str, $token = ' '): array
     {
@@ -111,31 +137,33 @@ final class Utilities
         }
 
         try {
-            $xstr = explode($token, $str);
-
-            if ($xstr !== false) {
-                trigger_error(
-                    'String could not be split using the supplied token.',
-                    E_USER_WARNING
-                );
+            if (($xstr = explode($token, $str)) !== false) {
+                return $xstr;
             }
-
-            // PHP 8 will throw ValueError.
         } catch (Exception $e) {
-            trigger_error(
-                $e->getMessage(),
-                E_USER_WARNING
-            );
+            // PHP 8 will throw ValueError.
         }
 
-        return $xstr;
+        trigger_error(
+            'String could not be split using the supplied token.',
+            E_USER_WARNING
+        );
+
+        return [];
     }
 
     /**
+     * Retrieve the image size dimension. For example, to retrieve the height dimension of a "large"
+     * Wordpress/Timber image:
+     *
+     * ```
+     * getImageDimension($image, 'large', 'height');
+     * ```
+     *
      * @param Image $image
      * @param string $size
      * @param string $dim
-     * @return int
+     * @return integer
      */
     public static function getImageDimension(Image $image, $size, $dim): int
     {
