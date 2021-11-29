@@ -30,16 +30,14 @@ use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
 final class FrontController
 {
     /**
-     * Loads a controller and invokes the method. An optional context object can
-     * be passed. If one is not, the default context defined in ContextFactory
-     * is loaded.
+     * Loads a controller from the DI container and invokes the passed method name ($method).
      *
-     * @param  string  $className
+     * @param string $controllerClass
      * @param string $method
      * @param  Context $context Deprecated
      * @return Controller
      */
-    public static function run(string $controllerClass, string $method, Context $context = null)
+    public static function run(string $controllerClass, string $method)
     {
         try {
             $reflectedClass = new ReflectionClass($controllerClass);
