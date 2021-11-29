@@ -108,12 +108,9 @@ final class FrontController
                 );
             }
 
-            // Apply container filters.
-            $container = apply_filters('core_theme_container', ContainerFactory::get());
-
             // Run the controller and get the Response obj.
             $response = call_user_func([
-                $container->get($controllerClass),
+                ContainerFactory::get()->get($controllerClass),
                 $method
             ]);
 
