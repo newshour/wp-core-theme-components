@@ -9,7 +9,6 @@ namespace NewsHour\WPCoreThemeComponents\Containers;
 use Exception;
 use InvalidArgumentException;
 use Composer\Script\Event;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\Cache\Exception\CacheException;
 use Symfony\Component\Config\FileLocator;
@@ -39,19 +38,19 @@ final class ContainerFactory
         }
 
         try {
-            $cacheAdapter = new PhpFilesAdapter(self::CACHE_NAMESPACE, 0, dirname(__DIR__, 2) . '/cache/');
+            $containerBuilder = new ContainerBuilder();
+            $loader = new PhpFileLoader($containerBuilder, new FileLocator(__DIR__));
+            $loader->load('Configuration.php');
 
-            self::$instance = $cacheAdapter->get('container', function (ItemInterface $item) {
-                $containerBuilder = new ContainerBuilder();
-                $loader = new PhpFileLoader($containerBuilder, new FileLocator(__DIR__));
-                $loader->load('Configuration.php');
-                $containerBuilder->compile();
-                return $containerBuilder;
-            });
+            // Apply any container filters.
+            $containerBuilder = apply_filters('core_theme_container', $containerBuilder);
+
+            // ...now compile the container.
+            $containerBuilder->compile();
+
+            self::$instance = $containerBuilder;
         } catch (InvalidArgumentException $iae) {
             trigger_error($iae->getMessage(), E_USER_ERROR);
-        } catch (CacheException $ce) {
-            trigger_error($ce->getMessage(), E_USER_ERROR);
         } catch (Exception $e) {
             trigger_error($e->getMessage(), E_USER_ERROR);
         }
