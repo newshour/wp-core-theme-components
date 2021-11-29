@@ -7,7 +7,7 @@
 namespace NewsHour\WPCoreThemeComponents\Components\Meta\Schemas;
 
 /**
- * schema.org data structures.
+ * Generates schema.org data which is added to the <head> element of web pages.
  */
 interface Schema
 {

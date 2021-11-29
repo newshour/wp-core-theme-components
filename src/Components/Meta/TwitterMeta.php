@@ -83,7 +83,7 @@ class TwitterMeta extends HtmlMeta
      */
     public function setTitle($title): self
     {
-        $this->title = $title;
+        $this->title = (string) $title;
 
         return $this;
     }

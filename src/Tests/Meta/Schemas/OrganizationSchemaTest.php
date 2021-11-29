@@ -30,11 +30,9 @@ class OrganizationSchemaTest extends TestCase
      */
     public function testCreateFromBlogInfo(): void
     {
-        $obj = OrganizationSchema::createFromBlogInfo();
-
         $this->assertInstanceOf(
             OrganizationSchema::class,
-            $obj
+            OrganizationSchema::createFromBlogInfo()
         );
     }
 

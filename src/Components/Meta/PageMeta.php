@@ -10,7 +10,7 @@ use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
 /**
- * Generates meta tags for the <head> section.
+ * Generates meta tags for the <head> section of a web page.
  *
  * @version 1.0.0
  */
@@ -152,7 +152,7 @@ class PageMeta extends HtmlMeta
     /**
      * Returns a list of strings (keywords).
      *
-     * @return array
+     * @return string[]
      */
     public function getKeywords(): array
     {
@@ -167,7 +167,7 @@ class PageMeta extends HtmlMeta
      */
     public function addKeyword($keyword): self
     {
-        $cleaned = trim($keyword);
+        $cleaned = trim((string) $keyword);
 
         if (!in_array($cleaned, $this->keywords)) {
             $this->keywords[] = $cleaned;

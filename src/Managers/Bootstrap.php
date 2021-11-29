@@ -11,10 +11,16 @@ use Twig\TwigFunction;
 use NewsHour\WPCoreThemeComponents\Utilities;
 
 /**
- * Bootstraps additional Wordpress settings and functionality needed by
- * the library.
+ * Wordpress Settings and Functionality Bootstrapper
+ *
+ * Bootstraps additional Wordpress settings and functionality needed by the library. Settings fields
+ * are also created to store organization-wide meta data values for social media.
+ *
+ * The following Twig functions are added for use in templates:
+ *  - home_url
+ *  - static_url
  */
-class Bootstrap implements WordpressManager
+class Bootstrap extends Manager
 {
     /**
      * @return string

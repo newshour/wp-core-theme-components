@@ -11,7 +11,15 @@ use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
 /**
- * Represents Facebook meta tag data.
+ * Generates Facebook meta tag data (Open Graph) for the <head> element of a web page.
+ *
+ * Example usage inside a Core Theme controller method:
+ *
+ * ```
+ * add_action('wp_head', function() use ($post) {
+ *      echo (string) FacebookMeta::createFromCorePost($post);
+ * });
+ * ```
  */
 class FacebookMeta extends HtmlMeta
 {
@@ -133,6 +141,8 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
+     * Returns a set of Facebook App IDs.
+     *
      * @return array
      */
     public function getAppId(): array
@@ -141,6 +151,8 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
+     * Add a Facebook App ID to the set.
+     *
      * @param string $appId
      * @return self
      */
@@ -267,7 +279,7 @@ class FacebookMeta extends HtmlMeta
      */
     public function setTitle($title): self
     {
-        $this->title = $title;
+        $this->title = (string) $title;
 
         return $this;
     }
@@ -286,13 +298,12 @@ class FacebookMeta extends HtmlMeta
      */
     public function setDescription($description): self
     {
-        $this->description = $description;
+        $this->description = (string) $description;
 
         return $this;
     }
 
     /**
-     *
      * @return string
      */
     public function getImageUrl(): string
@@ -301,7 +312,6 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     *
      * @param string $imageUrl
      * @return self
      */
@@ -322,7 +332,6 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     *
      * @param integer $imageHeight
      * @return self
      */
@@ -334,7 +343,6 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     *
      * @return integer
      */
     public function getImageWidth(): int
@@ -343,7 +351,6 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     *
      * @param integer $imageWidth
      * @return self
      */
@@ -397,7 +404,7 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getTags(): array
     {
@@ -455,10 +462,10 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     * Set the value of publishedOn
+     * Set the "published on" datetime. If no timezone value is passed, the default is the value of wp_timezone().
      *
      * @param Carbon|string|int $publishedOn
-     * @param string $timezone Optional, default will be value of wp_timezone().
+     * @param string $timezone Optional
      * @return self
      */
     public function setPublishedOn($publishedOn, $timezone = '')
@@ -468,7 +475,7 @@ class FacebookMeta extends HtmlMeta
         }
 
         if (empty($timezone)) {
-            $timezone = \wp_timezone();
+            $timezone = wp_timezone();
         }
 
         if ($publishedOn instanceof Carbon) {
@@ -489,7 +496,7 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     * Get the value of modifiedOn
+     * Get the "modified on" datetime.
      *
      * @return Carbon|null
      */
@@ -499,10 +506,10 @@ class FacebookMeta extends HtmlMeta
     }
 
     /**
-     * Set the value of modifiedOn
+     * Set the "modifed on" datetime. If no timezone value is passed, the default is the value of wp_timezone().
      *
      * @param Carbon|string|int $modifiedOn
-     * @param string $timezone Optional, default will be value of wp_timezone().
+     * @param string $timezone Optional
      * @return self
      */
     public function setModifiedOn($modifiedOn, $timezone = '')
@@ -512,7 +519,7 @@ class FacebookMeta extends HtmlMeta
         }
 
         if (empty($timezone)) {
-            $timezone = \wp_timezone();
+            $timezone = wp_timezone();
         }
 
         if ($modifiedOn instanceof Carbon) {

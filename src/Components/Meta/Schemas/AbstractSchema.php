@@ -17,6 +17,12 @@ use Timber\TextHelper;
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Components\Component;
 
+/**
+ * Abstract schema class for schema.org objects. Note that only a small sub-set of schema.org objects
+ * are provided with this library.
+ *
+ * @see https://schema.org
+ */
 abstract class AbstractSchema implements Schema, Component
 {
     private array $images = [];
@@ -37,6 +43,8 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
+     * Serializes to JSON.
+     *
      * @return string
      */
     public function render(): string
@@ -47,6 +55,9 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
+     * Returns the object's data into key value pairs based on the underlying
+     * schema.org entity structure.
+     *
      * @return array
      */
     public function toArray(): array
@@ -73,6 +84,11 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
+     * Checks if the object is considered "empty". Objects are considered "empty" when they have no set
+     * schema.org properties set, excluding identifiers (e.g. keys beginnging with '@'). Objects with
+     * only identifiers set will be considered "empty".
+     *
+     * @see https://schema.org/identifier
      * @return boolean
      */
     public function isEmpty(): bool
@@ -111,7 +127,21 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of datePublished
+     * Add an identifier.
+     *
+     * @param string $key
+     * @param string $value
+     * @return self
+     */
+    public function addIdentifier($key, $value): self
+    {
+        $_key = TextHelper::starts_with('@', $key) ? $key : '@' . trim($key);
+        $this->parameters()->set($_key, trim((string) $value));
+        return $this;
+    }
+
+    /**
+     * Get the "published on" datetime.
      *
      * @return Carbon|null
      */
@@ -121,7 +151,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of datePublished
+     * Set the "published on" datetime.
      *
      * @param Carbon|string|null $datePublished
      * @param string $timezone Optional
@@ -142,7 +172,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of dateModified
+     * Get the "modified on" datetime.
      *
      * @return Carbon|null
      */
@@ -152,7 +182,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of dateModified
+     * Set the "published on" datetime.
      *
      * @param Carbon|string $dateModified
      * @param string $timezone Optional
@@ -173,7 +203,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of inLanguage
+     * Get the value of inLanguage (e.g. en_US, etc).
      *
      * @return string
      */
@@ -183,8 +213,6 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of inLanguage
-     *
      * @param string|null $inLanguage
      * @return self
      */
@@ -200,16 +228,20 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of sameAs
+     * Returns a set of "sameAs" values.
      *
+     * @see https://schema.org/sameAs
      * @return array
      */
     public function getSameAs(): array
     {
-        return $this->sameAs;
+        return $this->parameters()->get('sameAs', []);
     }
 
     /**
+     * Add a "sameAs" URL string or array of URL strings.
+     *
+     * @see https://schema.org/sameAs
      * @param array|string $url
      * @return self
      */
@@ -220,7 +252,7 @@ abstract class AbstractSchema implements Schema, Component
         }
 
         if (is_array($url)) {
-            $this->parameters()->set('sameAs', array_map('trim', $url));
+            $this->parameters()->set('sameAs', Utilities::stringArrayUnique($url, true));
             return $this;
         }
 
@@ -236,7 +268,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of publisher
+     * Set the value of publisher.
      *
      * @param OrganizationSchema|string|null $publisher
      * @return self
@@ -255,17 +287,17 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-      * Get the value of description
-      *
-      * @return string
-      */
+     * Get the value of description.
+     *
+     * @return string
+     */
     public function getDescription(): string
     {
         return $this->parameters()->get('description', '');
     }
 
     /**
-     * Set the value of description
+     * Set the value of description.
      *
      * @param string|null $description
      * @return self
@@ -282,10 +314,10 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-      * Returns a collection of PersonSchema objects (authors).
-      *
-      * @return SchemaCollection
-      */
+     * Returns a collection of PersonSchema objects (authors).
+     *
+     * @return SchemaCollection
+     */
     public function getAuthors(): SplObjectStorage
     {
         return $this->parameters()->get('author', new SchemaCollection());
@@ -307,8 +339,6 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of url
-     *
      * @return string
      */
     public function getUrl(): string
@@ -317,8 +347,6 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of url
-     *
      * @param string|null $url
      * @return self
      */
@@ -334,14 +362,18 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
+     * Returns a set of image URLs.
+     *
      * @return array
      */
     public function getImages(): array
     {
-        return $this->images;
+        return $this->parameters()->get('image', []);
     }
 
     /**
+     * Add an image URL.
+     *
      * @param ImageSchema|Image|string $image
      * @return self
      */
@@ -349,7 +381,10 @@ abstract class AbstractSchema implements Schema, Component
     {
         $url = '';
 
-        if (is_string($image)) {
+        if (is_array($image)) {
+            $this->parameters()->set('image', Utilities::stringArrayUnique($image, true));
+            return $this;
+        } elseif (is_string($image)) {
             $url = $image;
         } elseif ($image instanceof ImageSchema) {
             $url = $image->getUrl();
@@ -370,7 +405,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Get the value of thumbnail
+     * Returns the thumbnail URL.
      *
      * @return string
      */
@@ -380,7 +415,7 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
-     * Set the value of thumbnail
+     * Set the thumbnail URL.
      *
      * @param mixed ImageSchema|Image|string $thumbnail
      * @return self
@@ -399,6 +434,9 @@ abstract class AbstractSchema implements Schema, Component
     }
 
     /**
+     * Set a "potentialAction" schema.
+     *
+     * @see https://schema.org/potentialAction
      * @param Schema|null $potentialAction
      * @return self
      */
@@ -449,6 +487,9 @@ abstract class AbstractSchema implements Schema, Component
         return $this;
     }
 
+    /**
+     * @return ParameterBag
+     */
     protected function parameters(): ParameterBag
     {
         if (!isset($this->parameterBag)) {
@@ -456,18 +497,6 @@ abstract class AbstractSchema implements Schema, Component
         }
 
         return $this->parameterBag;
-    }
-
-    /**
-     * @param array $dict
-     * @return array
-     */
-    protected function cleanSchemaDict(array $dict): array
-    {
-        $cleaned = array_filter($dict);
-        array_walk($cleaned, fn (&$v) => is_string($v) ? trim($v) : $v);
-
-        return $cleaned;
     }
 
     /**
