@@ -8,6 +8,7 @@ namespace NewsHour\WPCoreThemeComponents\Tests\Meta\Schemas;
 
 use PHPUnit\Framework\TestCase;
 use NewsHour\WPCoreThemeComponents\Components\Meta\Schemas\NewsArticleSchema;
+use NewsHour\WPCoreThemeComponents\Tests\DummyCorePost;
 
 class NewsArticleSchemaTest extends TestCase
 {
@@ -35,5 +36,14 @@ class NewsArticleSchemaTest extends TestCase
         $this->assertIsArray(
             $this->schema->toArray()
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateFromCorePost(): void
+    {
+        $created = NewsArticleSchema::createFromCorePost(new DummyCorePost());
+        $this->assertInstanceOf(NewsArticleSchema::class, $created);
     }
 }

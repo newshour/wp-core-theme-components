@@ -9,6 +9,7 @@ namespace NewsHour\WPCoreThemeComponents\Tests\Meta;
 use Carbon\Carbon;
 use PHPUnit\Framework\TestCase;
 use NewsHour\WPCoreThemeComponents\Components\Meta\FacebookMeta;
+use NewsHour\WPCoreThemeComponents\Tests\DummyCorePost;
 
 class FacebookMetaTest extends TestCase
 {
@@ -53,6 +54,15 @@ class FacebookMetaTest extends TestCase
             Carbon::class,
             $this->facebookMeta->getPublishedOn()
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateFromCorePost(): void
+    {
+        $created = FacebookMeta::createFromCorePost(new DummyCorePost());
+        $this->assertInstanceOf(FacebookMeta::class, $created);
     }
 
     /**
