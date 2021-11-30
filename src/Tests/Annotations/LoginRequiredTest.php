@@ -39,4 +39,19 @@ class LoginRequiredTest extends TestCase
         $this->assertIsObject($loginRequired);
         $this->assertFalse($loginRequired->validateUser());
     }
+
+    /**
+     * @return void
+     */
+    public function testLoginRequiredWithCap(): void
+    {
+        $reader = new AnnotationReader();
+        $loginRequired = $reader->getMethodAnnotation(
+            new ReflectionMethod(DummyController::class, 'loginRequiredWithCapMethod'),
+            LoginRequired::class
+        );
+
+        $this->assertIsObject($loginRequired);
+        $this->assertFalse($loginRequired->validateUser());
+    }
 }

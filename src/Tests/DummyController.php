@@ -21,6 +21,15 @@ class DummyController
     }
 
     /**
+     * @LoginRequired("edit_posts")
+     * @return void
+     */
+    public function loginRequiredWithCapMethod(): void
+    {
+        return;
+    }
+
+    /**
      * @HttpMethods("POST")
      * @return void
      */
