@@ -15,6 +15,21 @@ function apply_filters($filterName, $value)
 }
 
 /**
+ * Returns true if capability is 'edit_posts'.
+ *
+ * @param string $capability
+ * @return void
+ */
+function current_user_can($capability)
+{
+    if ($capability == 'edit_posts') {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * @param string $format
  * @param boolean $timestamp_with_offset
  * @param boolean $gmt
