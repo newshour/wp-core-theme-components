@@ -17,7 +17,7 @@ class MetaFactory
     private static $instance;
 
     /**
-     * @return SchemaFactory
+     * @return MetaFactory
      */
     public static function instance(): MetaFactory
     {
