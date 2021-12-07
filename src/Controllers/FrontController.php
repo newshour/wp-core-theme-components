@@ -15,6 +15,8 @@ use Doctrine\Common\Annotations\PsrCachedReader;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
 use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
@@ -76,19 +78,30 @@ final class FrontController
                 $debug
             );
 
-            // LoginRequired annotation.
-            $loginRequired = $reader->getMethodAnnotation(
+            // LoginRequired annotations.
+            $classLoginRequired = $reader->getClassAnnotation(
+                $reflectedClass,
+                LoginRequired::class
+            );
+
+            $methodLoginRequired = $reader->getMethodAnnotation(
                 $reflectedClass->getMethod($method),
                 LoginRequired::class
             );
 
-            if ($loginRequired !== null && !$loginRequired->validateUser()) {
-                wp_die(
-                    '403 Access Forbidden',
-                    'Error',
-                    ['response' => 403]
-                );
+            // Check class annotation, then method.
+            if ($classLoginRequired !== null && !$classLoginRequired->validateUser()) {
+                wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
+            } elseif ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
+                wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
             }
+
+            // Get the Request.
+            $request = RequestFactory::get();
+            $request->attributes->set(
+                '_controller',
+                [$controllerClass, $method]
+            );
 
             // HttpMethods annotation.
             $httpMethods = $reader->getMethodAnnotation(
@@ -97,7 +110,6 @@ final class FrontController
             );
 
             // Default are "safe" HTTP methods. Allow only if annotation value defines unsafe methods it.
-            $request = RequestFactory::get();
             $allowed = ($httpMethods !== null) ? $httpMethods->validateMethods($request) : $request->isMethodSafe();
 
             if (!$allowed) {
@@ -108,11 +120,25 @@ final class FrontController
                 );
             }
 
-            // Run the controller and get the Response obj.
-            $response = call_user_func([
-                ContainerFactory::get()->get($controllerClass),
-                $method
-            ]);
+            // Load the controller from the container.
+            $resolver = new ContainerControllerResolver(ContainerFactory::get());
+            $controller = $resolver->getController($request);
+
+            if (!is_callable($controller)) {
+                trigger_error(
+                    sprintf(
+                        'Error: <b>%s</b> could not be resolved in the container.',
+                        $controllerClass
+                    ),
+                    E_USER_ERROR
+                );
+            }
+
+            // Run the controller and retrieve the Response.
+            $response = call_user_func_array(
+                $controller,
+                (new ArgumentResolver())->getArguments($request, $controller)
+            );
 
             if (!($response instanceof Response)) {
                 wp_die(
