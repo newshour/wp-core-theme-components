@@ -9,10 +9,12 @@ namespace NewsHour\WPCoreThemeComponents\Managers;
 use ReflectionClass;
 use SplObjectStorage;
 use WP_CLI;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\HttpFoundation\Request;
 use NewsHour\WPCoreThemeComponents\Commands\Command;
+use NewsHour\WPCoreThemeComponents\Commands\ContainerCommandResolver;
+use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
-
 /**
  * Provides a service for adding new manager classes. This service is run
  * in functions.php.
@@ -60,7 +62,8 @@ final class ManagerService
     }
 
     /**
-     * Add a WordpressManager to the pipeline.
+     * Add a WordpressManager to the pipeline. If the manager implements ContainerAwareInterface,
+     * the container will also be set.
      *
      * @param  string $className
      * @return ManagerService
@@ -120,7 +123,7 @@ final class ManagerService
      * @param  Command $command
      * @return ManagerService
      */
-    public function addCommand($className)
+    public function addCommand($className, $attachToAction = 'init')
     {
         $reflector = new ReflectionClass((string)$className);
 
@@ -129,8 +132,19 @@ final class ManagerService
             return $this;
         }
 
-        $command = $reflector->newInstance();
-        WP_CLI::add_command((string)$command, $command);
+        if ($reflector->implementsInterface(ContainerAwareInterface::class)) {
+            add_action($attachToAction, function () use ($className) {
+                $resolver = new ContainerCommandResolver(ContainerFactory::get());
+                $command = $resolver->getCommand($className);
+                WP_CLI::add_command((string)$command, $command);
+            });
+
+            return $this;
+        }
+
+        add_action($attachToAction, function () use ($reflector) {
+            WP_CLI::add_command((string)$command, $reflector->newInstance());
+        });
 
         return $this;
     }
