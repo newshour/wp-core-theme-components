@@ -67,7 +67,6 @@ final class ContainerFactory
             $containerConfigCache = new ConfigCache($cacheFile, WP_DEBUG);
 
             if (!$containerConfigCache->isFresh()) {
-
                 // Setup the container.
                 $containerBuilder = new ContainerBuilder();
 
@@ -84,7 +83,10 @@ final class ContainerFactory
                 $containerBuilder->loadFromExtension($themeExt->getAlias());
 
                 // Load Symfony package configs.
-                $packages = new YamlFileLoader($containerBuilder, new FileLocator(trailingslashit(BASE_DIR) . 'config/packages'));
+                $packages = new YamlFileLoader(
+                    $containerBuilder,
+                    new FileLocator(trailingslashit(BASE_DIR) . 'config/packages')
+                );
                 $packages->import('*', 'yaml');
 
                 $containerBuilder->setParameter('kernel.debug', WP_DEBUG);
@@ -113,7 +115,7 @@ final class ContainerFactory
 
             require_once $cacheFile;
             $containerClass = '\\CoreThemeCachedContainer';
-            self::$instance = new $containerClass;
+            self::$instance = new $containerClass();
         } catch (InvalidArgumentException $iae) {
             trigger_error($iae->getMessage(), E_USER_ERROR);
         } catch (Exception $e) {

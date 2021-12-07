@@ -64,6 +64,10 @@ class ContainerCommandResolver
         } catch (\Error $e) {
         }
 
-        throw new \InvalidArgumentException(sprintf('Command "%s" neither exists as service nor as class.', $class), 0, $e);
+        throw new \InvalidArgumentException(
+            sprintf('Command "%s" neither exists as service nor as class.', $class),
+            0,
+            $e
+        );
     }
 }

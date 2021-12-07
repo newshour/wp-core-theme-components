@@ -15,6 +15,7 @@ use NewsHour\WPCoreThemeComponents\Commands\Command;
 use NewsHour\WPCoreThemeComponents\Commands\ContainerCommandResolver;
 use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
+
 /**
  * Provides a service for adding new manager classes. This service is run
  * in functions.php.

@@ -92,14 +92,15 @@ final class FrontController
             // Check class annotation, then method.
             if ($classLoginRequired !== null && !$classLoginRequired->validateUser()) {
                 wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
-            } else if ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
+            } elseif ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
                 wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
             }
 
             // Get the Request.
             $request = RequestFactory::get();
             $request->attributes->set(
-                '_controller', [$controllerClass, $method]
+                '_controller',
+                [$controllerClass, $method]
             );
 
             // HttpMethods annotation.

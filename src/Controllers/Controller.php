@@ -17,6 +17,7 @@ use Timber\Loader;
 use Timber\Timber;
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
+
 /**
  * The parent Controller class.
  *
