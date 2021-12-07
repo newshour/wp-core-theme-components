@@ -7,22 +7,48 @@
 namespace NewsHour\WPCoreThemeComponents\Controllers;
 
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Timber\Loader;
 use Timber\Timber;
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
-
 /**
  * The parent Controller class.
  *
  * @abstract
  */
-abstract class Controller
+abstract class Controller implements ServiceSubscriberInterface
 {
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
+     * @param ContainerInterface $container
+     * @required
+     */
+    public function setContainer(ContainerInterface $container): ?ContainerInterface
+    {
+        $previous = $this->container;
+        $this->container = $container;
+
+        return $previous;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedServices(): array
+    {
+        return [];
+    }
+
     /**
      * Renders the view as HTML and returns a Response object. Timber template caching parameters
      * can be passed via the $kwargs argument.
