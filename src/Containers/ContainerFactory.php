@@ -82,12 +82,19 @@ final class ContainerFactory
                 $containerBuilder->registerExtension($themeExt);
                 $containerBuilder->loadFromExtension($themeExt->getAlias());
 
+                // Load theme configs.
+                $themeLoader = new YamlFileLoader(
+                    $containerBuilder,
+                    new FileLocator(trailingslashit(BASE_DIR) . 'config')
+                );
+                $themeLoader->import('theme.yaml', 'yaml', 'not_found');
+
                 // Load Symfony package configs.
-                $packages = new YamlFileLoader(
+                $packagesLoader = new YamlFileLoader(
                     $containerBuilder,
                     new FileLocator(trailingslashit(BASE_DIR) . 'config/packages')
                 );
-                $packages->import('*', 'yaml');
+                $packagesLoader->import('*.yaml', 'yaml', 'not_found');
 
                 $containerBuilder->setParameter('kernel.debug', WP_DEBUG);
                 $containerBuilder->setParameter('kernel.charset', 'utf-8');
@@ -136,9 +143,14 @@ final class ContainerFactory
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $cachedContainer = dirname($vendorDir) . '/cache/container.php';
+            $cachedContainerMeta = $cachedContainer . '.meta';
 
             if (file_exists($cachedContainer)) {
                 unlink($cachedContainer);
+            }
+
+            if (file_exists($cachedContainerMeta)) {
+                unlink($cachedContainerMeta);
             }
         } catch (InvalidArgumentException $iae) {
             trigger_error($iae->getMessage(), E_USER_ERROR);
