@@ -52,13 +52,16 @@ return function (ContainerConfigurator $configurator) {
 
     // Automatically load the theme's commands.
     $cmdsDir = trailingslashit(get_template_directory()) . 'src/Commands';
-    $cmdsFinder = new Finder();
-    $cmdsFinder->files()->in($cmdsDir);
 
-    if ($cmdsFinder->hasResults()) {
-        $services->load(
-            'App\\Themes\\CoreTheme\\Commands\\',
-            $cmdsDir . '/*'
-        )->public();
+    if (is_dir($cmdsDir)) {
+        $cmdsFinder = new Finder();
+        $cmdsFinder->files()->in($cmdsDir);
+
+        if ($cmdsFinder->hasResults()) {
+            $services->load(
+                'App\\Themes\\CoreTheme\\Commands\\',
+                $cmdsDir . '/*'
+            )->public();
+        }
     }
 };
