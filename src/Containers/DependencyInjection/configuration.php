@@ -6,9 +6,10 @@
 
 namespace NewsHour\WPCoreThemeComponents\Containers;
 
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Timber\Timber;
 use NewsHour\WPCoreThemeComponents\Components\Meta\MetaFactory;
 use NewsHour\WPCoreThemeComponents\Contexts\Context;
@@ -50,8 +51,14 @@ return function (ContainerConfigurator $configurator) {
      ->public();
 
     // Automatically load the theme's commands.
-    $services->load(
-        'App\\Themes\\CoreTheme\\Commands\\',
-        trailingslashit(get_template_directory()) . 'src/Commands/*'
-    )->public();
+    $cmdsDir = trailingslashit(get_template_directory()) . 'src/Commands';
+    $cmdsFinder = new Finder();
+    $cmdsFinder->files()->in($cmdsDir);
+
+    if ($cmdsFinder->hasResults()) {
+        $services->load(
+            'App\\Themes\\CoreTheme\\Commands\\',
+            $cmdsDir . '/*'
+        )->public();
+    }
 };
