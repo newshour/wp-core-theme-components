@@ -10,7 +10,6 @@ use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
 class DummyCorePost extends CorePost
 {
-
     public function __construct()
     {
         $GLOBALS['wp_query'] = new \stdClass();
