@@ -142,7 +142,7 @@ class TwitterMeta extends HtmlMeta
 
     /**
      * @param string $imageUrl
-     * @return void
+     * @return self
      */
     public function setImageUrl($imageUrl): self
     {
