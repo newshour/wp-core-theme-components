@@ -34,9 +34,19 @@ class OrganizationSchema extends AbstractSchema
         $obj->setName(get_bloginfo('name'));
         $obj->setUrl(get_bloginfo('url'));
 
-        $image = new ImageSchema();
-        $image->setUrl(get_option('core_theme_org_logo_url', ''));
-        $obj->setLogo($image);
+        $logoUrl = get_option('core_theme_org_logo_url', '');
+
+        if (!empty($logoUrl)) {
+            $image = new ImageSchema();
+            $image->setUrl(get_option('core_theme_org_logo_url', ''));
+
+            if (!empty($dim = get_option('core_theme_org_logo_url_dim', []))) {
+                $image->setHeight($dim['height']);
+                $image->setWidth($dim['width']);
+            }
+
+            $obj->setLogo($image);
+        }
 
         return $obj;
     }
