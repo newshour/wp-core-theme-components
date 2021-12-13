@@ -6,6 +6,7 @@
 
 namespace NewsHour\WPCoreThemeComponents\Managers;
 
+use InvalidArgumentException;
 use Twig\Environment;
 use Twig\TwigFunction;
 use NewsHour\WPCoreThemeComponents\Utilities;
@@ -22,6 +23,8 @@ use NewsHour\WPCoreThemeComponents\Utilities;
  */
 class Bootstrap extends Manager
 {
+    public const DEFAULT_IMAGE_EXTENSIONS = ['png', 'gif', 'jpg', 'jpeg, webp'];
+
     /**
      * @return string
      */
@@ -68,9 +71,55 @@ class Bootstrap extends Manager
             [
                 'description' => 'Organization logo image URL.',
                 'type' => 'string',
-                'sanitize_callback' => 'esc_url_raw'
+                'sanitize_callback' => function ($val) {
+                    if (
+                        !empty($val) &&
+                        !Utilities::validateUrlExtension($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS)
+                    ) {
+                        add_settings_error(
+                            'core_theme_org_logo_url',
+                            esc_attr('core_theme_org_logo_url'),
+                            'The organization image URL must be one of these types: GIF, PNG, JPG, WEBP',
+                            'error'
+                        );
+                    }
+
+                    return esc_url_raw($val);
+                }
             ]
         );
+
+        add_action('pre_update_option_core_theme_org_logo_url', function ($val, $old) {
+            if (!empty(get_settings_errors('core_theme_org_logo_url'))) {
+                return $old;
+            }
+
+            return $val;
+        }, 10, 2);
+
+        // Store the default social image's dimensions.
+        add_action('update_option_core_theme_org_logo_url', function ($old, $val) {
+            if (strcasecmp($old, $val) == 0) {
+                return;
+            }
+
+            if (empty($val)) {
+                delete_option('core_theme_org_logo_url_dim');
+                return;
+            }
+
+            try {
+                $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+
+                if (!get_option('core_theme_org_logo_url_dim')) {
+                    add_option('core_theme_org_logo_url_dim', $dimensions, true);
+                } else {
+                    update_option('core_theme_org_logo_url_dim', $dimensions, true);
+                }
+            } catch (InvalidArgumentException $iae) {
+                // pass
+            }
+        }, 10, 2);
 
         // Default social media thumbnail URL.
         add_settings_field(
@@ -94,9 +143,55 @@ class Bootstrap extends Manager
             [
                 'description' => 'Default social image URL.',
                 'type' => 'string',
-                'sanitize_callback' => 'esc_url_raw'
+                'sanitize_callback' => function ($val) {
+                    if (
+                        !empty($val) &&
+                        !Utilities::validateUrlExtension($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS)
+                    ) {
+                        add_settings_error(
+                            'core_theme_social_img_url',
+                            esc_attr('core_theme_social_img_url'),
+                            'The default social image URL must be one of these types: GIF, PNG, JPG, WEBP',
+                            'error'
+                        );
+                    }
+
+                    return esc_url_raw($val);
+                }
             ]
         );
+
+        add_action('pre_update_option_core_theme_social_img_url', function ($val, $old) {
+            if (!empty(get_settings_errors('core_theme_social_img_url'))) {
+                return $old;
+            }
+
+            return $val;
+        }, 10, 2);
+
+        // Store the default social image's dimensions.
+        add_action('update_option_core_theme_social_img_url', function ($old, $val) {
+            if (strcasecmp($old, $val) == 0) {
+                return;
+            }
+
+            if (empty($val)) {
+                delete_option('core_theme_social_img_url_dim');
+                return;
+            }
+
+            try {
+                $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+
+                if (!get_option('core_theme_social_img_url_dim')) {
+                    add_option('core_theme_social_img_url_dim', $dimensions, true);
+                } else {
+                    update_option('core_theme_social_img_url_dim', $dimensions, true);
+                }
+            } catch (InvalidArgumentException $iae) {
+                // pass
+            }
+        }, 10, 2);
 
         // Default Facebook URL.
         add_settings_field(
