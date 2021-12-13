@@ -18,6 +18,7 @@
         "symfony/http-foundation": "^5.4",
         "symfony/mailer": "^5.4",
         "symfony/notifier": "^5.4",
+        "symfony/property-access": "^5.4",
         "symfony/serializer": "^5.4",
         "symfony/slack-notifier": "^5.4",
         "symfony/yaml": "^5.4",
