@@ -7,6 +7,8 @@
 namespace NewsHour\WPCoreThemeComponents;
 
 use Exception;
+use InvalidArgumentException;
+use WP_Http;
 use Carbon\Carbon;
 use Timber\Image;
 use Timber\TextHelper;
@@ -123,36 +125,6 @@ final class Utilities
     }
 
     /**
-     * Splits a string by a token. Default token is a space. Essentially a wrapper
-     * for explode() to catch errors.
-     *
-     * @param string $str
-     * @param string $token Optional
-     * @return string[]
-     */
-    public static function splitter($str, $token = ' '): array
-    {
-        if (empty($str) || !is_string($str)) {
-            return [];
-        }
-
-        try {
-            if (($xstr = explode($token, $str)) !== false) {
-                return $xstr;
-            }
-        } catch (Exception $e) {
-            // PHP 8 will throw ValueError.
-        }
-
-        trigger_error(
-            'String could not be split using the supplied token.',
-            E_USER_WARNING
-        );
-
-        return [];
-    }
-
-    /**
      * Retrieve the image size dimension. For example, to retrieve the height dimension of a "large"
      * Wordpress/Timber image:
      *
@@ -174,6 +146,42 @@ final class Utilities
         }
 
         return 0;
+    }
+
+    /**
+     * Fetch a remote image's size dimensions.
+     *
+     * @param string $url
+     * @param array $allowed Optional, allowed image types. e.g. png, gif, jpg...
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    public static function getRemoteImageDim($url, array $allowed = []): array
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('The URL passed is not a valid URL.');
+        }
+
+        if (!self::validateUrlExtension($url, $allowed)) {
+            $types = array_map(fn ($item) => strtolower(ltrim($item, '.')), $allowed);
+            throw new InvalidArgumentException(
+                sprintf(
+                    'The image is not one of these types: %s',
+                    implode(', ', $types)
+                )
+            );
+        }
+
+        // Make sure image exists.
+        $resp = (new WP_http())->head($url);
+
+        if (!is_wp_error($resp)) {
+            // Now fetch remote image size. This can be slow...
+            list($width, $height, $type, $attr) = @getimagesize($url);
+            return ['width' => (int) $width, 'height' => (int) $height];
+        }
+
+        return ['width' => 0, 'height' => 0];
     }
 
     /**
@@ -204,6 +212,36 @@ final class Utilities
         }
 
         return false;
+    }
+
+    /**
+     * Splits a string by a token. Default token is a space. Essentially a wrapper
+     * for explode() to catch errors.
+     *
+     * @param string $str
+     * @param string $token Optional
+     * @return string[]
+     */
+    public static function splitter($str, $token = ' '): array
+    {
+        if (empty($str) || !is_string($str)) {
+            return [];
+        }
+
+        try {
+            if (($xstr = explode($token, $str)) !== false) {
+                return $xstr;
+            }
+        } catch (Exception $e) {
+            // PHP 8 will throw ValueError.
+        }
+
+        trigger_error(
+            'String could not be split using the supplied token.',
+            E_USER_WARNING
+        );
+
+        return [];
     }
 
     /**
@@ -251,5 +289,25 @@ final class Utilities
         }
 
         return Carbon::createFromTimestamp(strtotime($value), $timezone);
+    }
+
+    /**
+     * Validates that a URL string uses an allowed extension.
+     *
+     * @param string $url
+     * @param array $allowed
+     * @return boolean
+     */
+    public static function validateUrlExtension($url, array $allowed): bool
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL) || count($allowed) < 1) {
+            return false;
+        }
+
+        $path = strtolower(parse_url($url, PHP_URL_PATH));
+        $types = array_map(fn ($item) => strtolower(ltrim($item, '.')), $allowed);
+        $found = array_filter($types, fn ($val) => TextHelper::ends_with($path, '.' . $val));
+
+        return empty($found) ? false : true;
     }
 }
