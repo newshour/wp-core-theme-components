@@ -103,18 +103,19 @@ class Bootstrap extends Manager
                 return;
             }
 
-            if (empty($val)) {
-                delete_option('core_theme_org_logo_url_dim');
-                return;
-            }
-
             try {
-                $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+                $dimensions = ['width' => 0, 'height' => 0];
+                $autoload = false;
+
+                if (!empty($val)) {
+                    $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+                    $autoload = true;
+                }
 
                 if (!get_option('core_theme_org_logo_url_dim')) {
-                    add_option('core_theme_org_logo_url_dim', $dimensions, true);
+                    add_option('core_theme_org_logo_url_dim', $dimensions, $autoload);
                 } else {
-                    update_option('core_theme_org_logo_url_dim', $dimensions, true);
+                    update_option('core_theme_org_logo_url_dim', $dimensions, $autoload);
                 }
             } catch (InvalidArgumentException $iae) {
                 // pass
@@ -175,18 +176,19 @@ class Bootstrap extends Manager
                 return;
             }
 
-            if (empty($val)) {
-                delete_option('core_theme_social_img_url_dim');
-                return;
-            }
-
             try {
-                $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+                $dimensions = ['width' => 0, 'height' => 0];
+                $autoload = false;
+
+                if (!empty($val)) {
+                    $dimensions = Utilities::getRemoteImageDim($val, Bootstrap::DEFAULT_IMAGE_EXTENSIONS);
+                    $autoload = true;
+                }
 
                 if (!get_option('core_theme_social_img_url_dim')) {
-                    add_option('core_theme_social_img_url_dim', $dimensions, true);
+                    add_option('core_theme_social_img_url_dim', $dimensions, $autoload);
                 } else {
-                    update_option('core_theme_social_img_url_dim', $dimensions, true);
+                    update_option('core_theme_social_img_url_dim', $dimensions, $autoload);
                 }
             } catch (InvalidArgumentException $iae) {
                 // pass
