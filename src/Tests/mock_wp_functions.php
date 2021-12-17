@@ -143,6 +143,18 @@ function is_user_logged_in()
 }
 
 /**
+ * @return mixed
+ */
+function stripslashes_deep($value)
+{
+    if (is_string($value)) {
+        return stripslashes($value);
+    }
+
+    return $value;
+}
+
+/**
  * @return string
  */
 function wp_timezone()
