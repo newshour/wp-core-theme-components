@@ -36,10 +36,10 @@ final class FrontController
      *
      * @param string $controllerClass
      * @param string $method
-     * @param  Context $context Deprecated
+     * @param array $params Optional method arguments passed as key/value.
      * @return Controller
      */
-    public static function run(string $controllerClass, string $method)
+    public static function run(string $controllerClass, string $method, array $params = [])
     {
         try {
             $reflectedClass = new ReflectionClass($controllerClass);
@@ -103,6 +103,11 @@ final class FrontController
                 [$controllerClass, $method]
             );
 
+            // Add any method arguments.
+            if (count($params) > 0) {
+                $request->attributes->add($params);
+            }
+
             // HttpMethods annotation.
             $httpMethods = $reader->getMethodAnnotation(
                 $reflectedClass->getMethod($method),
@@ -160,11 +165,13 @@ final class FrontController
             // We're all done. Wordpress will run its `shutdown` action on exit.
             exit;
         } catch (ReflectionException $re) {
+            status_header(400);
             trigger_error(
                 sprintf('%s [stack trace] %s', $re->getMessage(), $re->getTraceAsString()),
                 E_USER_ERROR
             );
         } catch (Exception $e) {
+            status_header(400);
             trigger_error(
                 sprintf('%s [stack trace] %s', $e->getMessage(), $e->getTraceAsString()),
                 E_USER_ERROR
