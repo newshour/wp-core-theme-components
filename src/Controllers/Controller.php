@@ -26,6 +26,11 @@ use NewsHour\WPCoreThemeComponents\Contexts\Context;
 abstract class Controller implements ServiceSubscriberInterface
 {
     /**
+     * @var Response
+     */
+    private $response;
+
+    /**
      * @var ContainerInterface
      */
     protected $container;
@@ -51,6 +56,20 @@ abstract class Controller implements ServiceSubscriberInterface
     }
 
     /**
+     * Get the Response object used build the final response.
+     *
+     * @return Response
+     */
+    public function getResponse(): Response
+    {
+        if (empty($this->response)) {
+            $this->response = new Response();
+        }
+
+        return $this->response;
+    }
+
+    /**
      * Renders the view as HTML and returns a Response object. Timber template caching parameters
      * can be passed via the $kwargs argument.
      *
@@ -63,40 +82,48 @@ abstract class Controller implements ServiceSubscriberInterface
      */
     protected function render(string $template, Context $context, array $kwargs = []): ?Response
     {
-        $expires = isset($kwargs['expires']) && $kwargs['expires'] > -1 ? $kwargs['expires'] : false;
-        $cacheMode = empty($kwargs['cache_mode']) ? Loader::CACHE_USE_DEFAULT : $kwargs['cache_mode'];
-        $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
-
-        $headers = array_merge(
-            $this->getQueuedHeaders(),
-            empty($kwargs['headers']) ? [] : $kwargs['headers']
-        );
-
-        $content = Timber::fetch(
-            $template,
-            $context->toArray(),
-            $expires,
-            $cacheMode
-        );
-
-        if ($content === false) {
-            trigger_error(
-                sprintf(
-                    // phpcs:ignore
-                    'The template "%s" could not be rendered. Please make sure the template exists and is a valid Twig file.',
-                    $template
-                ),
-                E_USER_ERROR
-            );
-        }
-
-        if (!Utilities::hasKey('Content-Type', $headers)) {
-            $headers['Content-Type'] = 'text/html; charset=' . get_option('blog_charset');
-        }
-
         try {
+            $response = $this->getResponse();
+
+            if ($response->isNotModified($context->getRequest())) {
+                return $response;
+            }
+
+            $expires = isset($kwargs['expires']) && $kwargs['expires'] > -1 ? $kwargs['expires'] : false;
+            $cacheMode = empty($kwargs['cache_mode']) ? Loader::CACHE_USE_DEFAULT : $kwargs['cache_mode'];
+            $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
+
+            $headers = array_merge(
+                $this->getQueuedHeaders(),
+                empty($kwargs['headers']) ? [] : $kwargs['headers']
+            );
+
+            $content = Timber::fetch(
+                $template,
+                $context->toArray(),
+                $expires,
+                $cacheMode
+            );
+
+            if ($content === false) {
+                trigger_error(
+                    sprintf(
+                        // phpcs:ignore
+                        'The template "%s" could not be rendered. Please make sure the template exists and is a valid Twig file.',
+                        $template
+                    ),
+                    E_USER_ERROR
+                );
+            }
+
+            if (!Utilities::hasKey('Content-Type', $headers)) {
+                $headers['Content-Type'] = 'text/html; charset=' . get_option('blog_charset');
+            }
+
             // Build the response.
-            $response = new Response($content, $statusCode, $headers);
+            $response->setContent($content);
+            $response->setStatusCode($statusCode);
+            $response->headers->add($headers);
             $response->prepare($context->getRequest());
 
             return $response;
@@ -137,6 +164,12 @@ abstract class Controller implements ServiceSubscriberInterface
      */
     protected function renderJson(array $data, Context $context, array $kwargs = []): ?Response
     {
+        $response = $this->getResponse();
+
+        if ($response->isNotModified($context->getRequest())) {
+            return $response;
+        }
+
         $options = empty($kwargs['json_encode_options']) ? 0 : $kwargs['json_encode_options'];
         $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
         $headers = empty($kwargs['headers']) ? [] : $kwargs['headers'];
@@ -158,7 +191,9 @@ abstract class Controller implements ServiceSubscriberInterface
             }
 
             // Build the response.
-            $response = new Response($content, $statusCode, $headers);
+            $response->setContent($content);
+            $response->setStatusCode($statusCode);
+            $response->headers->add($headers);
             $response->prepare($context->getRequest());
 
             return $response;
