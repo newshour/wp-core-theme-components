@@ -6,6 +6,7 @@
 
 namespace NewsHour\WPCoreThemeComponents\Models;
 
+use Carbon\Carbon;
 use Timber\Post;
 use Timber\TextHelper;
 
@@ -18,6 +19,16 @@ abstract class CorePost extends Post
 {
     // Storage for categories and tags.
     private array $storage = [];
+
+    /**
+     * @var Carbon|null
+     */
+    private ?Carbon $modifiedDateObj = null;
+
+    /**
+     * @var Carbon|null
+     */
+    private ?Carbon $publishedDateObj = null;
 
     /**
      * Get the post excerpt by returning the `post_excerpt` property set by Wordpress. If this property
@@ -84,5 +95,39 @@ abstract class CorePost extends Post
         $this->storage['tags'] = null;
         $this->tags();
         return $this;
+    }
+
+   /**
+     * Returns the published date as a Carbon obj.
+     *
+     * @return Carbon|null
+     */
+    public function getPublishedDate(): ?Carbon
+    {
+        if (empty($this->publishedDateObj) && !empty($date = $this->date('c'))) {
+            $this->publishedDateObj = Carbon::createFromTimestamp(
+                strtotime($date),
+                wp_timezone()
+            );
+        }
+
+        return $this->publishedDateObj;
+    }
+
+    /**
+     * Returns the modifed date as a Carbon obj.
+     *
+     * @return Carbon|null
+     */
+    public function getModifiedDate(): ?Carbon
+    {
+        if (empty($this->modifiedDateObj) && !empty($date = $this->modified_date('c'))) {
+            $this->modifiedDateObj = Carbon::createFromTimestamp(
+                strtotime($date),
+                wp_timezone()
+            );
+        }
+
+        return $this->modifiedDateObj;
     }
 }
