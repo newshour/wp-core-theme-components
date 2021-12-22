@@ -168,6 +168,19 @@ abstract class Controller implements ServiceSubscriberInterface
     }
 
     /**
+     * Redirect to a URL. Call the internal Wordpress function 'wp_safe_redirect'.
+     *
+     * @param string $url
+     * @param integer $statusCode
+     * @return void
+     */
+    public function redirect(string $url, int $statusCode = 302)
+    {
+        wp_safe_redirect($url, $statusCode, '');
+        exit;
+    }
+
+    /**
      * Add CORS headers to the headers array.
      *
      * @param Request $request
