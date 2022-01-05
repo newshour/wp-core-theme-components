@@ -46,9 +46,9 @@ interface ResultSet
      * Retrieve the first result by primary key.
      *
      * @param int $pk
-     * @return array
+     * @return object|null
      */
-    public function pk($pk): array;
+    public function pk($pk): ?object;
 
     /**
      * Filter a query by keyword args. See WP_Query documentation for a full
