@@ -6,6 +6,7 @@
 
 namespace NewsHour\WPCoreThemeComponents\Query;
 
+use UnexpectedValueException;
 use WP_Query;
 use Carbon\Carbon;
 use Timber\PostQuery;
@@ -132,16 +133,23 @@ final class PostsResultSet implements ResultSet
      * Returns the first result by primary key (post ID). This method will
      * hit the database.
      *
+     * @throws UnexpectedValueException
      * @param int $pk
-     * @return array
+     * @return null|object
      */
-    public function pk($pk): array
+    public function pk($pk): ?object
     {
         $this->queryParams = [
             'p' => is_numeric($pk) ? (int) $pk : 0
         ];
 
-        return $this->limit(1)->get();
+        $result = $this->limit(1)->get();
+
+        if (count($result) > 1) {
+            throw new UnexpectedValueException('Multiple records found.');
+        }
+
+        return isset($result[0]) ? $result[0] : null;
     }
 
     /**
@@ -150,7 +158,7 @@ final class PostsResultSet implements ResultSet
      * @param array|int $pid The post ID(s).
      * @return array
      */
-    public function id($pid): array
+    public function id($pid)
     {
         if (is_array($pid) && count($pid) > 0) {
             $clean = array_filter($pid, 'is_numeric');
@@ -171,7 +179,11 @@ final class PostsResultSet implements ResultSet
         }
 
         if (is_numeric($pid)) {
-            return $this->pk($pid);
+            try {
+                return [$this->pk($pid)];
+            } catch (UnexpectedValueException $uve) {
+                error_log($uve->getMessage());
+            }
         }
 
         return [];
