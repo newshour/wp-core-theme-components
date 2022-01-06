@@ -353,7 +353,6 @@ final class PostsResultSet implements ResultSet
 
         $key = $parent ? 'post_parent__not_in' : 'post__not_in';
         $this->queryParams[$key] = $clean;
-        $this->limit(-1);
 
         return $this;
     }
