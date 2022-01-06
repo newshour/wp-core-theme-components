@@ -9,6 +9,7 @@ namespace NewsHour\WPCoreThemeComponents\Query;
 use UnexpectedValueException;
 use WP_Query;
 use Carbon\Carbon;
+use Doctrine\Common\Collections\Collection;
 use Timber\PostQuery;
 
 /**
@@ -251,6 +252,33 @@ final class PostsResultSet implements ResultSet
         }
 
         return array_slice($localArray, 0, $andSlice);
+    }
+
+    /**
+     * Add the results directly to a collection. This is useful for when you are working with
+     * an existing collection and wish to merge the results in. Note that the interface
+     * for a collection uses Doctrine\Common\Collections\Collection. Collection is not yet
+     * part of the standard library: https://www.php.net/manual/en/class.ds-collection.php
+     *
+     * @param Collection $collection
+     * @param string $key Optional key
+     * @return void
+     */
+    public function addToCollection(Collection &$collection, $key = null): void
+    {
+        $localArray = $this->get();
+
+        if (count($localArray) > 0) {
+            if ($key !== null) {
+                $collection->set($key, $localArray);
+            } else {
+                foreach ($localArray as $obj) {
+                    $collection[] = $obj;
+                }
+            }
+
+            unset($localArray);
+        }
     }
 
     // ------------------------------------------------------------------------
