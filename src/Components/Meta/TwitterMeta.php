@@ -6,6 +6,7 @@
 
 namespace NewsHour\WPCoreThemeComponents\Components\Meta;
 
+use Timber\Helper;
 use NewsHour\WPCoreThemeComponents\Utilities;
 use NewsHour\WPCoreThemeComponents\Models\CorePost;
 
@@ -19,6 +20,7 @@ class TwitterMeta extends HtmlMeta
     private string $imageUrl = '';
     private string $card = 'summary';
     private bool $doNotTrack = false;
+    private array $labels = [];
 
     public function __construct()
     {
@@ -62,6 +64,15 @@ class TwitterMeta extends HtmlMeta
 
         if ($this->getDoNotTrack()) {
             $html[] = Utilities::createMetaPropertyTag('twitter:dnt', 'on');
+        }
+
+        if (count($this->labels) > 0) {
+            $index = 1;
+            foreach ($this->labels as $label => $value) {
+                $html[] = Utilities::createMetaPropertyTag('twitter:label' . $index, $label);
+                $html[] = Utilities::createMetaPropertyTag('twitter:data' . $index, $value);
+                $index++;
+            }
         }
 
         $html = array_filter($html);
@@ -170,6 +181,30 @@ class TwitterMeta extends HtmlMeta
         }
 
         $this->doNotTrack = (bool) $doNotTrack;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getLabels(): array
+    {
+        return $this->labels;
+    }
+
+    /**
+     * Adds data for Twitter "label[n=1]" data where "label" is the dictionary key
+     * and "data" is the dictionary value.
+     *
+     * @param array<string, string> $labels
+     * @return self
+     */
+    public function addLabels(array $labels): self
+    {
+        if (Helper::is_array_assoc($labels)) {
+            $this->labels = array_merge($this->labels, $labels);
+        }
 
         return $this;
     }
