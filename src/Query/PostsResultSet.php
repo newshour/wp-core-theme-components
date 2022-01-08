@@ -159,6 +159,7 @@ final class PostsResultSet implements ResultSet
         }
 
         $paramsCopy = $this->queryParams;
+        $paramsCopy['fields'] = 'ids';
         $paramsCopy['nopaging'] = true;
         $paramsCopy['posts_per_page'] = -1;
 
