@@ -160,8 +160,6 @@ final class PostsResultSet implements ResultSet
 
         $paramsCopy = $this->queryParams;
         $paramsCopy['fields'] = 'ids';
-        $paramsCopy['nopaging'] = true;
-        $paramsCopy['posts_per_page'] = -1;
 
         $ids = (new WP_Query($paramsCopy))->get_posts();
         return count($ids);
