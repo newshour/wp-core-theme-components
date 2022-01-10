@@ -191,6 +191,28 @@ final class PostsResultSet implements ResultSet
     }
 
     /**
+     * Check if a post exists. This method will hit the database by performing a
+     * `SELECT COUNT(*)...` query
+     *
+     * @param integer $pk
+     * @return boolean
+     */
+    public function exists($pk): bool
+    {
+        global $wpdb;
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT COUNT(*) AS total FROM {$wpdb->prefix}posts WHERE ID = %d LIMIT 1",
+                $pk
+            ),
+            ARRAY_A
+        );
+
+        return (is_array($row) && (int) $row['total'] > 0) ? true : false;
+    }
+
+    /**
      * Alias for pk(int $pk), but also accepts an array of IDs. Deprecated, use
      * pk() or include().
      *

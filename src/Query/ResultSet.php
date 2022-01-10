@@ -62,6 +62,14 @@ interface ResultSet extends Countable
     public function pk($pk): ?object;
 
     /**
+     * Returns true if record exists.
+     *
+     * @param int $pk
+     * @return boolean
+     */
+    public function exists($pk): bool;
+
+    /**
      * Filter a query by keyword args. See WP_Query documentation for a full
      * list of args.
      *
