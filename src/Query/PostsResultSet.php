@@ -137,8 +137,11 @@ final class PostsResultSet implements ResultSet
         }
 
         $this->data = $queryObj->get_posts();
+
+        // Heads up: Timber's PostQuery currently hides access to the SQL query used (referred to as `request` by WP_Query).
         $this->immutables['sqlQuery'] = empty($queryObj->request) ? '' : (string) $queryObj->request;
-        $this->immutables['totalRows'] = empty($queryObj->found_rows) ? count($this->data) : (int) $queryObj->found_rows;
+        // phpcs:ignore
+        $this->immutables['foundRows'] = empty($queryObj->found_rows) ? count($this->data) : (int) $queryObj->found_rows;
 
         if ($useCache && count($this->data) > 0) {
             wp_cache_set($cacheKey, $this->data, $cacheGroup);
