@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace NewsHour\WPCoreThemeComponents\Query;
@@ -43,6 +43,8 @@ final class PostsResultSet implements ResultSet
     // Stores the data.
     private array $data = [];
 
+    private array $immutables = [];
+
     /**
      * @param string $postClass
      * @param array $queryParams
@@ -59,6 +61,17 @@ final class PostsResultSet implements ResultSet
         $this->postClass = empty($postClass) ? '\Timber\Post' : $postClass;
         $this->queryParams = array_merge($initial, $queryParams);
         $this->queryParams['post_type'] = $this->getPostTypeValue($postClass);
+    }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        if (array_key_exists($key, $this->immutables)) {
+            return $this->immutables[$key];
+        }
     }
 
     /**
@@ -118,16 +131,42 @@ final class PostsResultSet implements ResultSet
 
         // If 'fields' was passed and is not set to 'all', we need to use the WP_Query class.
         if (!empty($this->queryParams['fields']) && strcasecmp($this->queryParams['fields'], 'all') != 0) {
-            $this->data = (new WP_Query($this->queryParams))->get_posts();
+            $queryObj = new WP_Query($this->queryParams);
         } else {
-            $this->data = (new PostQuery($this->queryParams, $this->postClass))->get_posts();
+            $queryObj = new PostQuery($this->queryParams, $this->postClass);
         }
+
+        $this->data = $queryObj->get_posts();
+
+        // Heads up: Timber's PostQuery currently hides access to the SQL query used (referred to as
+        // `request` by WP_Query).
+        $this->immutables['sqlQuery'] = empty($queryObj->request) ? '' : (string) $queryObj->request;
+        // phpcs:ignore
+        $this->immutables['foundRows'] = empty($queryObj->found_rows) ? count($this->data) : (int) $queryObj->found_rows;
 
         if ($useCache && count($this->data) > 0) {
             wp_cache_set($cacheKey, $this->data, $cacheGroup);
         }
 
         return $this->data;
+    }
+
+    /**
+     * The number of records that will be returned with the query parameters.
+     *
+     * @return integer
+     */
+    public function count(): int
+    {
+        if (!empty($this->data) && isset($this->immutables['totalRows'])) {
+            return $this->immutables['totalRows'];
+        }
+
+        $paramsCopy = $this->queryParams;
+        $paramsCopy['fields'] = 'ids';
+
+        $ids = (new WP_Query($paramsCopy))->get_posts();
+        return count($ids);
     }
 
     /**
@@ -154,8 +193,32 @@ final class PostsResultSet implements ResultSet
     }
 
     /**
-     * Alias for pk(int $pk), but also accepts an array of IDs.
+     * Check if a post exists. This method will hit the database by performing a
+     * `SELECT COUNT(*)...` query
      *
+     * @param integer $pk
+     * @return boolean
+     */
+    public function exists($pk): bool
+    {
+        global $wpdb;
+
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT COUNT(*) AS total FROM {$wpdb->prefix}posts WHERE ID = %d LIMIT 1",
+                $pk
+            ),
+            ARRAY_A
+        );
+
+        return (is_array($row) && (int) $row['total'] > 0) ? true : false;
+    }
+
+    /**
+     * Alias for pk(int $pk), but also accepts an array of IDs. Deprecated, use
+     * pk() or include().
+     *
+     * @deprecated
      * @param array|int $pid The post ID(s).
      * @return array
      */
@@ -439,10 +502,10 @@ final class PostsResultSet implements ResultSet
     }
 
     /**
-     * Fetch results by a list of post IDs.
+     * Fetch results by a list of post IDs (or parent post ID).
      *
      * @param array $ids A list of post IDs to include.
-     * @param boolean $ignoreStickyPosts Optional
+     * @param boolean $parent Optional
      * @return self
      */
     public function include(array $ids, $parent = false): self
@@ -507,13 +570,13 @@ final class PostsResultSet implements ResultSet
     }
 
     /**
-     * Sets cache expires to indefinite. Same as cache(0).
+     * Sets cache to never cache. Same as cache(-1).
      *
      * @return self
      */
     public function nocache(): self
     {
-        return $this->cache(0);
+        return $this->cache(-1);
     }
 
     /**

@@ -6,10 +6,12 @@
 
 namespace NewsHour\WPCoreThemeComponents\Query;
 
+use Countable;
+
 /**
  * ResultSets provide a fluent interface to fetching data.
  */
-interface ResultSet
+interface ResultSet extends Countable
 {
     /**
      * @return string
@@ -24,6 +26,15 @@ interface ResultSet
      * @return ResultSet
      */
     public static function factory($postClass = '', array $params = []): ResultSet;
+
+    /**
+     * Add the results directly to a collection.
+     *
+     * @param \Doctrine\Common\Collections\Collection $collection
+     * @param mixed $key
+     * @return void
+     */
+    public function addToCollection(\Doctrine\Common\Collections\Collection &$collection, $key = null): void;
 
     /**
      * Sets the cache expires time in seconds. -1 is no cache, 0 is
@@ -49,6 +60,14 @@ interface ResultSet
      * @return object|null
      */
     public function pk($pk): ?object;
+
+    /**
+     * Returns true if record exists.
+     *
+     * @param int $pk
+     * @return boolean
+     */
+    public function exists($pk): bool;
 
     /**
      * Filter a query by keyword args. See WP_Query documentation for a full
@@ -114,6 +133,13 @@ interface ResultSet
      * @return ResultSet
      */
     public function include(array $ids): ResultSet;
+
+    /**
+     * Ignore any settings for "sticky posts".
+     *
+     * @return self
+     */
+    public function ignoreStickyPosts(): ResultSet;
 
     /**
      * Retrieve the latest records by date.
