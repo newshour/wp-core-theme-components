@@ -101,7 +101,6 @@ final class CoreThemeKernel extends Kernel
     {
         $loader->load(function (ContainerBuilder $container) use ($loader) {
             $container->prependExtensionConfig('framework', [
-                'http_cache' => ['enabled' => false],
                 'translator' => ['enabled' => false]
             ]);
 
