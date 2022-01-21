@@ -15,13 +15,15 @@ use Doctrine\Common\Annotations\PsrCachedReader;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
-use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
-use NewsHour\WPCoreThemeComponents\Contexts\Context;
+use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
+use NewsHour\WPCoreThemeComponents\Events\AnnotationEvent;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
+use NewsHour\WPCoreThemeComponents\Utilities;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
@@ -41,27 +43,21 @@ final class FrontController
      */
     public static function run(string $controllerClass, string $method, array $params = [])
     {
+        $kernel = CoreThemeKernel::create(WP_ENV, WP_DEBUG);
+        $request = RequestFactory::get();
+
         try {
             $reflectedClass = new ReflectionClass($controllerClass);
 
             if (!$reflectedClass->isInstantiable() || !$reflectedClass->isSubclassOf(Controller::class)) {
-                trigger_error(
-                    sprintf(
-                        'Error: <b>%s</b> is not a valid Controller.',
-                        $controllerClass
-                    ),
-                    E_USER_ERROR
+                throw new ReflectionException(
+                    "Error: <b>{$controllerClass}</b> is not a valid Controller."
                 );
             }
 
             if (!$reflectedClass->hasMethod($method)) {
-                trigger_error(
-                    sprintf(
-                        'A method named <b>%s</b> could not be found in <i>%s</i>.',
-                        $method,
-                        $controllerClass
-                    ),
-                    E_USER_ERROR
+                throw new ReflectionException(
+                    "A method named <b>{$method}</b> could not be found in <i>{$controllerClass}</i>."
                 );
             }
 
@@ -91,13 +87,12 @@ final class FrontController
 
             // Check class annotation, then method.
             if ($classLoginRequired !== null && !$classLoginRequired->validateUser()) {
-                wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
+                Utilities::exitOnError('403 Access Forbidden', 'Error', 403, $kernel, $request);
             } elseif ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
-                wp_die('403 Access Forbidden', 'Error', ['response' => 403]);
+                Utilities::exitOnError('403 Access Forbidden', 'Error', 405, $kernel, $request);
             }
 
-            // Get the Request.
-            $request = RequestFactory::get();
+            // Set the controller args.
             $request->attributes->set(
                 '_controller',
                 [$controllerClass, $method]
@@ -118,64 +113,48 @@ final class FrontController
             $allowed = ($httpMethods !== null) ? $httpMethods->validateMethods($request) : $request->isMethodSafe();
 
             if (!$allowed) {
-                wp_die(
-                    '405 Method Not Allowed',
-                    'Error',
-                    ['response' => 405]
-                );
+                Utilities::exitOnError('405 Method Not Allowed', 'Error', 405, $kernel, $request);
             }
 
             // Load the controller from the container.
-            $resolver = new ContainerControllerResolver(ContainerFactory::get());
-            $controller = $resolver->getController($request);
+            $response = $kernel->handle($request, CoreThemeKernel::MAIN_REQUEST, false);
 
-            if (!is_callable($controller)) {
-                trigger_error(
-                    sprintf(
-                        'Error: <b>%s</b> could not be resolved in the container.',
-                        $controllerClass
-                    ),
-                    E_USER_ERROR
-                );
+            if ($response instanceof Response) {
+                // Apply any post controller action filters.
+                $response = apply_filters('core_theme_response', $response);
+
+                // Send the response.
+                $response->send();
+
+                // We're all done. Wordpress will run its `shutdown` action on exit.
+                $kernel->terminate($request, $response);
+                $kernel->shutdown();
+                exit;
             }
 
-            // Run the controller and retrieve the Response.
-            $response = call_user_func_array(
-                $controller,
-                (new ArgumentResolver())->getArguments($request, $controller)
+            $throwable = new Exception(
+                sprintf(
+                    '<b>%s</b> did not return a Response object. Did you forget the <i>return</i> statement?',
+                    $controllerClass . '::' . $method
+                )
             );
-
-            if (!($response instanceof Response)) {
-                wp_die(
-                    sprintf(
-                        '<b>%s</b> did not return a Response object. Did you forget the <i>return</i> statement?',
-                        $controllerClass . '::' . $method
-                    ),
-                    'Error',
-                    ['response' => 400]
-                );
-            }
-
-            // Apply any post controller action filters.
-            $response = apply_filters('core_theme_response', $response);
-
-            // Send the response.
-            $response->send();
-
-            // We're all done. Wordpress will run its `shutdown` action on exit.
-            exit;
         } catch (ReflectionException $re) {
-            status_header(400);
-            trigger_error(
-                sprintf('%s [stack trace] %s', $re->getMessage(), $re->getTraceAsString()),
-                E_USER_ERROR
-            );
+            $throwable = $re;
         } catch (Exception $e) {
-            status_header(400);
-            trigger_error(
-                sprintf('%s [stack trace] %s', $e->getMessage(), $e->getTraceAsString()),
-                E_USER_ERROR
-            );
+            $throwable = $e;
         }
+
+        $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $throwable);
+        $kernel->getEventDispatcher()->dispatch($event, KernelEvents::EXCEPTION);
+
+        if ($event->hasResponse()) {
+            $response = $event->getResponse();
+            $response->send();
+            $kernel->terminate($request, $response);
+            $kernel->shutdown();
+            exit;
+        }
+
+        Utilities::exitOnError($throwable->getMessage(), 'Error', 500);
     }
 }

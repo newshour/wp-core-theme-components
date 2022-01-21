@@ -9,15 +9,9 @@ namespace NewsHour\WPCoreThemeComponents\Containers;
 use Exception;
 use InvalidArgumentException;
 use Composer\Script\Event;
-use Symfony\Bundle\FrameworkBundle\DependencyInjection\FrameworkExtension;
+use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 use Symfony\Component\Cache\Exception\CacheException;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\HttpKernel\Controller\ErrorController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Retrieves the configured container object. In production, the container
@@ -35,99 +29,29 @@ use Symfony\Component\HttpKernel\Controller\ErrorController;
 final class ContainerFactory
 {
     /**
-     * @var Container
+     * @var ContainerInterface
      */
     private static $instance;
 
     /**
-     * @return Container
+     * @return ContainerInterface
      */
-    public static function get(): Container
+    public static function get(): ContainerInterface
     {
         if (!empty(self::$instance)) {
             return self::$instance;
         }
 
-        try {
-            if (!defined('BASE_DIR')) {
-                trigger_error('The constant BASE_DIR (project root) must be defined.');
-            }
+        $env = isset($_SERVER['WP_ENV']) ? $_SERVER['WP_ENV'] : '';
+        $debug = false;
 
-            $cacheDir = \trailingslashit(BASE_DIR) . 'cache';
-
-            if (!is_dir($cacheDir)) {
-                mkdir($cacheDir, 0755);
-            }
-
-            if (!is_writable($cacheDir)) {
-                trigger_error($cacheDir . ' dir is not writable.');
-            }
-
-            $cacheFile = $cacheDir . '/container.php';
-            $containerConfigCache = new ConfigCache($cacheFile, WP_DEBUG);
-
-            if (!$containerConfigCache->isFresh()) {
-                // Setup the container.
-                $containerBuilder = new ContainerBuilder();
-
-                // Add the framework bundle.
-                $frameworkExt = new FrameworkExtension();
-                $containerBuilder->registerExtension($frameworkExt);
-                $containerBuilder->loadFromExtension($frameworkExt->getAlias(), [
-                    'translator' => ['enabled' => false]
-                ]);
-
-                // Load any custom configs for the theme.
-                $themeExt = new DependencyInjection\ThemeExtension();
-                $containerBuilder->registerExtension($themeExt);
-                $containerBuilder->loadFromExtension($themeExt->getAlias());
-
-                // Load theme configs.
-                $themeLoader = new YamlFileLoader(
-                    $containerBuilder,
-                    new FileLocator(trailingslashit(BASE_DIR) . 'config')
-                );
-                $themeLoader->import('theme.yaml', 'yaml', 'not_found');
-
-                // Load Symfony package configs.
-                $packagesLoader = new YamlFileLoader(
-                    $containerBuilder,
-                    new FileLocator(trailingslashit(BASE_DIR) . 'config/packages')
-                );
-                $packagesLoader->import('*.yaml', 'yaml', 'not_found');
-
-                $containerBuilder->setParameter('kernel.debug', WP_DEBUG);
-                $containerBuilder->setParameter('kernel.charset', 'utf-8');
-                $containerBuilder->setParameter('kernel.project_dir', BASE_DIR);
-                $containerBuilder->setParameter('kernel.cache_dir', \trailingslashit(BASE_DIR) . 'cache');
-                $containerBuilder->setParameter('kernel.build_dir', \trailingslashit(BASE_DIR) . 'cache/build');
-                $containerBuilder->setParameter('kernel.container_class', ContainerBuilder::class);
-                $containerBuilder->setParameter('kernel.error_controller', ErrorController::class);
-                $containerBuilder->setParameter('kernel.bundles_metadata', []);
-                $containerBuilder->setParameter('kernel.runtime_environment', WP_ENV);
-                $containerBuilder->setParameter('kernel.default_locale', 'en_US');
-
-                // Apply any container filters.
-                $containerBuilder = apply_filters('core_theme_container', $containerBuilder);
-
-                // ...now compile the container.
-                $containerBuilder->compile();
-
-                $dumper = new PhpDumper($containerBuilder);
-                $containerConfigCache->write(
-                    $dumper->dump(['class' => 'CoreThemeCachedContainer']),
-                    $containerBuilder->getResources()
-                );
-            }
-
-            require_once $cacheFile;
-            $containerClass = '\\CoreThemeCachedContainer';
-            self::$instance = new $containerClass();
-        } catch (InvalidArgumentException $iae) {
-            trigger_error($iae->getMessage(), E_USER_ERROR);
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_ERROR);
+        if (defined('WP_DEBUG')) {
+            $debug = WP_DEBUG;
+        } elseif (isset($_SERVER['WP_DEBUG'])) {
+            $debug = WP_DEBUG;
         }
+
+        self::$instance = CoreThemeKernel::create($env, $debug)->getContainer();
 
         return self::$instance;
     }
@@ -142,15 +66,10 @@ final class ContainerFactory
     {
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            $cachedContainer = dirname($vendorDir) . '/cache/container.php';
-            $cachedContainerMeta = $cachedContainer . '.meta';
+            $buildDir = dirname($vendorDir) . '/cache/build';
 
-            if (file_exists($cachedContainer)) {
-                unlink($cachedContainer);
-            }
-
-            if (file_exists($cachedContainerMeta)) {
-                unlink($cachedContainerMeta);
+            if (is_dir($buildDir)) {
+                array_map('unlink', glob($buildDir . '/*'));
             }
         } catch (InvalidArgumentException $iae) {
             trigger_error($iae->getMessage(), E_USER_ERROR);
