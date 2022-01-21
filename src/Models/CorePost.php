@@ -97,11 +97,11 @@ abstract class CorePost extends Post
         return $this;
     }
 
-   /**
-     * Returns the published date as a Carbon obj.
-     *
-     * @return Carbon|null
-     */
+    /**
+      * Returns the published date as a Carbon obj.
+      *
+      * @return Carbon|null
+      */
     public function getPublishedDate(): ?Carbon
     {
         if (empty($this->publishedDateObj) && !empty($date = $this->date('c'))) {
