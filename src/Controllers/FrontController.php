@@ -9,6 +9,7 @@ namespace NewsHour\WPCoreThemeComponents\Controllers;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use Throwable;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\PsrCachedReader;
@@ -21,7 +22,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
 use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
-use NewsHour\WPCoreThemeComponents\Events\AnnotationEvent;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
 use NewsHour\WPCoreThemeComponents\Utilities;
 
@@ -45,6 +45,10 @@ final class FrontController
     {
         $kernel = CoreThemeKernel::create(WP_ENV, WP_DEBUG);
         $request = RequestFactory::get();
+
+        if (WP_DEBUG) {
+            $request->attributes->set('showException', true);
+        }
 
         try {
             $reflectedClass = new ReflectionClass($controllerClass);
@@ -142,6 +146,8 @@ final class FrontController
             $throwable = $re;
         } catch (Exception $e) {
             $throwable = $e;
+        } catch (Throwable $t) {
+            $throwable = $t;
         }
 
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $throwable);
@@ -155,6 +161,6 @@ final class FrontController
             exit;
         }
 
-        Utilities::exitOnError($throwable->getMessage(), 'Error', 500);
+        Utilities::exitOnError($throwable->getMessage(), 'Error', 500, $kernel, $request);
     }
 }

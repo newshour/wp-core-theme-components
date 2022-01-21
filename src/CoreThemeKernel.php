@@ -8,6 +8,7 @@ namespace NewsHour\WPCoreThemeComponents;
 
 use Exception;
 use InvalidArgumentException;
+use Throwable;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -173,20 +174,30 @@ final class CoreThemeKernel extends Kernel
             }
 
             $args = (new ArgumentResolver())->getArguments($request, $controller);
-
-            return call_user_func_array(
-                $controller,
-                $args
-            );
+            return call_user_func_array($controller, $args);
         } catch (Exception $e) {
             if (!$catch) {
                 throw ($e);
             }
 
-            $this->getEventDispatcher()->dispatch(
-                new ExceptionEvent($this, $request, HttpKernelInterface::MAIN_REQUEST, $e),
-                KernelEvents::EXCEPTION
-            );
+            $throwable = $e;
+        } catch (Throwable $t) {
+            if (!$catch) {
+                throw ($t);
+            }
+
+            $throwable = $t;
+        }
+
+        $event = new ExceptionEvent($this, $request, HttpKernelInterface::MAIN_REQUEST, $throwable);
+        $this->getEventDispatcher()->dispatch($event, KernelEvents::EXCEPTION);
+
+        if ($event->hasResponse()) {
+            $response = $event->getResponse();
+            $response->send();
+            $this->terminate($request, $response);
+            $this->shutdown();
+            exit;
         }
     }
 
