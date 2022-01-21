@@ -34,7 +34,7 @@ class ExceptionListener
     public function onKernelException(ExceptionEvent $event): void
     {
         $e = $event->getThrowable();
-        $this->logger->error($e->getMessage());
+        $this->logger->error($e);
 
         $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
 
