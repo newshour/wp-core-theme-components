@@ -23,7 +23,7 @@ use NewsHour\WPCoreThemeComponents\Annotations\HttpMethods;
 use NewsHour\WPCoreThemeComponents\Annotations\LoginRequired;
 use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
-use NewsHour\WPCoreThemeComponents\Utilities;
+use NewsHour\WPCoreThemeComponents\KernelUtilities;
 
 /**
  * Loads controller classes from the Wordpress "template" files. e.g. single.php,
@@ -89,18 +89,25 @@ final class FrontController
                 LoginRequired::class
             );
 
+            $accessForbidden = false;
+
             // Check class annotation, then method.
             if ($classLoginRequired !== null && !$classLoginRequired->validateUser()) {
-                Utilities::exitOnError('403 Access Forbidden', 'Error', 403, $kernel, $request);
+                $accessForbidden = true;
             } elseif ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
-                Utilities::exitOnError('403 Access Forbidden', 'Error', 405, $kernel, $request);
+                $accessForbidden = true;
+            }
+
+            if ($accessForbidden) {
+                KernelUtilities::create($kernel, $request)->exitOnError(
+                    '403 Access Forbidden',
+                    'Error',
+                    405
+                );
             }
 
             // Set the controller args.
-            $request->attributes->set(
-                '_controller',
-                [$controllerClass, $method]
-            );
+            $request->attributes->set('_controller', [$controllerClass, $method]);
 
             // Add any method arguments.
             if (count($params) > 0) {
@@ -117,7 +124,11 @@ final class FrontController
             $allowed = ($httpMethods !== null) ? $httpMethods->validateMethods($request) : $request->isMethodSafe();
 
             if (!$allowed) {
-                Utilities::exitOnError('405 Method Not Allowed', 'Error', 405, $kernel, $request);
+                KernelUtilities::create($kernel, $request)->exitOnError(
+                    '405 Method Not Allowed',
+                    'Error',
+                    405
+                );
             }
 
             // Load the controller from the container.
@@ -161,6 +172,10 @@ final class FrontController
             exit;
         }
 
-        Utilities::exitOnError($throwable->getMessage(), 'Error', 500, $kernel, $request);
+        KernelUtilities::create($kernel, $request)->exitOnError(
+            $throwable->getMessage(),
+            'Error',
+            500
+        );
     }
 }

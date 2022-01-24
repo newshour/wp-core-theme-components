@@ -56,7 +56,7 @@
         ]
     },
     "support": {
-        "issues": "hhttps://github.com/newshour/wp-core-theme-components/issues",
+        "issues": "https://github.com/newshour/wp-core-theme-components/issues",
         "source": "https://github.com/newshour/wp-core-theme-components",
         "docs": "https://newshour.github.io/wp-core-theme-components-docs/"
     }
