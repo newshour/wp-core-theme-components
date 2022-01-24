@@ -46,20 +46,24 @@ final class RequestFactory
     public static function getStack(): RequestStack
     {
         if (self::$stack == null) {
-            // Fixes for Wordpress's auto-escaping mutations.
-            $_get = stripslashes_deep($_GET);
-            $_post = stripslashes_deep($_POST);
-            $_cookie = stripslashes_deep($_COOKIE);
-            $_server = stripslashes_deep($_SERVER);
+            if (function_exists('stripslashes_deep')) {
+                // Fixes for Wordpress's auto-escaping mutations.
+                $_get = stripslashes_deep($_GET);
+                $_post = stripslashes_deep($_POST);
+                $_cookie = stripslashes_deep($_COOKIE);
+                $_server = stripslashes_deep($_SERVER);
 
-            $request = new Request(
-                is_array($_get) ? $_get : [],
-                is_array($_post) ? $_post : [],
-                [],
-                is_array($_cookie) ? $_cookie : [],
-                $_FILES,
-                is_array($_server) ? $_server : []
-            );
+                $request = new Request(
+                    is_array($_get) ? $_get : [],
+                    is_array($_post) ? $_post : [],
+                    [],
+                    is_array($_cookie) ? $_cookie : [],
+                    $_FILES,
+                    is_array($_server) ? $_server : []
+                );
+            } else {
+                $request = Request::createFromGlobals();
+            }
 
             // Borrowed from Request's `createFromGlobals` method.
             if (
@@ -70,8 +74,11 @@ final class RequestFactory
                 $request->request = new InputBag($data);
             }
 
-            $request->setLocale(get_locale());
-            $request->setDefaultLocale(get_locale());
+            if (function_exists('get_locale')) {
+                $locale = get_locale();
+                $request->setLocale($locale);
+                $request->setDefaultLocale($locale);
+            }
 
             $stack = new RequestStack();
             $stack->push($request);

@@ -6,6 +6,7 @@
 
 namespace NewsHour\WPCoreThemeComponents\Controllers;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
@@ -22,9 +23,9 @@ final class ControllerResolver extends ContainerControllerResolver
 {
     /**
      * @param ContainerInterface $container
-     * @param $logger
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ContainerInterface $container, $logger = null)
+    public function __construct(ContainerInterface $container, LoggerInterface $logger = null)
     {
         parent::__construct($container, $logger);
     }

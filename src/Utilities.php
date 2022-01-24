@@ -12,6 +12,9 @@ use WP_Http;
 use Carbon\Carbon;
 use Timber\Image;
 use Timber\TextHelper;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
 
 /**
@@ -122,6 +125,56 @@ final class Utilities
         }
 
         return '<link ' . implode(' ', $attrHtml) . ' />';
+    }
+
+    /**
+     * Exits the program on error. If the context is HTTP or WP CLI, the method will exit using wp_die(),
+     * otherwise uses trigger_error() to trigger any set error handlers.
+     *
+     * @param string $message
+     * @param string $title
+     * @param integer $statusCode
+     * @param CoreThemeKernel $kernel
+     * @param Request $request
+     * @return void
+     */
+    public static function exitOnError(
+        $message,
+        $title,
+        $statusCode = 500,
+        CoreThemeKernel $kernel = null,
+        Request $request = null
+    ): void {
+        if (function_exists('wp_die')) {
+            if ($kernel != null) {
+                $kernel->shutdown();
+            }
+
+            remove_all_filters('status_header'); // Clear this filter chain so nothing overrides the status code.
+            wp_die($message, $title, ['response' => $statusCode]);
+        }
+
+        $response = new Response($message, $statusCode);
+
+        if ($response->isServerError()) {
+            $response->setCache([
+                'no_cache' => true,
+                'must_revalidate' => true,
+                'max_age' => 0
+            ]);
+        }
+
+        $response->send();
+
+        if ($kernel != null) {
+            if ($request != null) {
+                $kernel->terminate($request, $response);
+            }
+
+            $kernel->shutdown();
+        }
+
+        exit;
     }
 
     /**

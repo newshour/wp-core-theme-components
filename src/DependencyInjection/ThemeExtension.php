@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-namespace NewsHour\WPCoreThemeComponents\Containers\DependencyInjection;
+namespace NewsHour\WPCoreThemeComponents\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -28,10 +28,8 @@ class ThemeExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        // Setup any custom configs here...
-
-        // Load required Core Theme services.
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__));
-        $loader->load('configuration.php');
+        $resourcesDir = dirname(__FILE__, 2) . '/Resources/config';
+        $loader = new PhpFileLoader($container, new FileLocator($resourcesDir));
+        $loader->load('services.php');
     }
 }
