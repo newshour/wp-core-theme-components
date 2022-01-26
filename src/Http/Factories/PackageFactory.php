@@ -41,16 +41,16 @@ final class PackageFactory
         }
 
         if (!is_object($manifestFile)) {
-            trigger_error(
+            error_log(
                 // phpcs:ignore
                 'The filter "core_theme_asset_strategy" did not return a version strategy object. Defaulting to empty version strategy.',
-                E_USER_WARNING
+                E_USER_NOTICE
             );
         } else {
-            trigger_error(
+            error_log(
                 // phpcs:ignore
                 'The object returned by filter "core_theme_asset_strategy" is not of type VersionStrategyInterface. Defaulting to empty version strategy.',
-                E_USER_WARNING
+                E_USER_NOTICE
             );
         }
 
