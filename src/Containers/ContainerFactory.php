@@ -55,28 +55,4 @@ final class ContainerFactory
 
         return self::$instance;
     }
-
-    /**
-     * Clears the cached container.
-     *
-     * @param Event $event
-     * @return void
-     */
-    public static function dumpAutoload(Event $event): void
-    {
-        try {
-            $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            $buildDir = dirname($vendorDir) . '/cache/build';
-
-            if (is_dir($buildDir)) {
-                array_map('unlink', glob($buildDir . '/*'));
-            }
-        } catch (InvalidArgumentException $iae) {
-            trigger_error($iae->getMessage(), E_USER_ERROR);
-        } catch (CacheException $ce) {
-            trigger_error($ce->getMessage(), E_USER_ERROR);
-        } catch (Exception $e) {
-            trigger_error($e->getMessage(), E_USER_ERROR);
-        }
-    }
 }
