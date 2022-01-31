@@ -6,6 +6,8 @@
 
 namespace NewsHour\WPCoreThemeComponents\Managers;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -13,8 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @abstract
  */
-abstract class Manager implements WordpressManager
+abstract class Manager implements WordpressManager, LoggerAwareInterface
 {
+    protected ?LoggerInterface $logger = null;
     private Request $request;
 
     /**
@@ -46,5 +49,14 @@ abstract class Manager implements WordpressManager
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 }
