@@ -19,6 +19,7 @@ use NewsHour\WPCoreThemeComponents\Contexts\PostContext;
 use NewsHour\WPCoreThemeComponents\Controllers\ControllerResolver;
 use NewsHour\WPCoreThemeComponents\Events\Listeners\ExceptionListener;
 use NewsHour\WPCoreThemeComponents\Http\Factories\RequestFactory;
+use NewsHour\WPCoreThemeComponents\Managers\Bootstrap;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -60,4 +61,10 @@ return static function (ContainerConfigurator $configurator) {
 
     // Metas.
     $services->set(MetaFactory::class)->factory([MetaFactory::class, 'instance']);
+
+    // Managers
+    $services->set(Bootstrap::class, Bootstrap::class)
+        ->args([service('request')])
+        ->call('setLogger', [service('logger')])
+        ->tag('core_theme.manager');
 };
