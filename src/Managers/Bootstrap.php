@@ -6,10 +6,15 @@
 
 namespace NewsHour\WPCoreThemeComponents\Managers;
 
+use Throwable;
 use InvalidArgumentException;
 use Twig\Environment;
 use Twig\TwigFunction;
+use NewsHour\WPCoreThemeComponents\Admin\Screens\ContainerScreenResolver;
+use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Utilities;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Wordpress Settings and Functionality Bootstrapper
@@ -21,7 +26,7 @@ use NewsHour\WPCoreThemeComponents\Utilities;
  *  - home_url
  *  - static_url
  */
-class Bootstrap extends Manager
+class Bootstrap extends Manager implements ContainerAwareInterface
 {
     public const DEFAULT_IMAGE_EXTENSIONS = ['png', 'gif', 'jpg', 'jpeg, webp'];
 
@@ -33,6 +38,11 @@ class Bootstrap extends Manager
         return self::class;
     }
 
+    public function setContainer(?ContainerInterface $container = null)
+    {
+        $this->container = $container;
+    }
+
     /**
      * @return void
      */
@@ -40,6 +50,10 @@ class Bootstrap extends Manager
     {
         add_filter('admin_init', [$this, 'extendGeneralSettingsPage']);
         add_filter('init', [$this, 'addTwigFunctions']);
+
+        if (is_admin()) {
+            add_filter('current_screen', [$this, 'registerAdminScreens']);
+        }
     }
 
     /**
@@ -362,6 +376,34 @@ class Bootstrap extends Manager
                 'default' => 0
             ]
         );
+    }
+
+    /**
+     * Register "screen" classes by using the `core_theme_screen_classmap` filter.
+     *
+     * @return void
+     */
+    public function registerAdminScreens(): void
+    {
+        $currentScreen = get_current_screen();
+
+        if ($currentScreen === null) {
+            $this->logger->debug('`get_current_screen` did not return a WP_Screen object.');
+            return;
+        }
+
+        try {
+            $resolver = new ContainerScreenResolver(ContainerFactory::get());
+            $screen = $resolver->getScreen($currentScreen);
+
+            if ($screen !== null) {
+                $screen->main();
+            }
+        } catch (InvalidArgumentException $iae) {
+            Utilities::triggerError($this->logger, (string) $iae);
+        } catch (Throwable $e) {
+            Utilities::triggerError($this->logger, (string) $e);
+        }
     }
 
     /**
