@@ -9,12 +9,10 @@ namespace NewsHour\WPCoreThemeComponents;
 use Exception;
 use InvalidArgumentException;
 use WP_Http;
+use Psr\Log\LoggerInterface;
 use Carbon\Carbon;
 use Timber\Image;
 use Timber\TextHelper;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 use NewsHour\WPCoreThemeComponents\Http\Factories\PackageFactory;
 
 /**
@@ -312,5 +310,19 @@ final class Utilities
         $found = array_filter($types, fn ($val) => TextHelper::ends_with($path, '.' . $val));
 
         return empty($found) ? false : true;
+    }
+
+    /**
+     * Shortcut to log an error and then display the error to the user (Wordpress default behavior).
+     *
+     * @param LoggerInterface $logger
+     * @param string $message
+     * @param array $extra
+     * @return void
+     */
+    public static function triggerError(LoggerInterface $logger, string $message, array $extra = []): void
+    {
+        $logger->error($message, $extra);
+        trigger_error($message, E_USER_ERROR);
     }
 }

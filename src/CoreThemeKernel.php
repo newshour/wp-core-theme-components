@@ -21,6 +21,9 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelEvents;
+use NewsHour\WPCoreThemeComponents\DependencyInjection\Compiler\ManagerPass;
+use NewsHour\WPCoreThemeComponents\DependencyInjection\Compiler\WpCommandPass;
+use NewsHour\WPCoreThemeComponents\DependencyInjection\Compiler\WpScreenPass;
 use NewsHour\WPCoreThemeComponents\Factories\FileLoaderFactory;
 
 /**
@@ -50,7 +53,7 @@ final class CoreThemeKernel extends Kernel
     {
         $kernel = new CoreThemeKernel($environment, $debug);
         $kernel->boot();
-
+        restore_error_handler();
         return $kernel;
     }
 
@@ -61,6 +64,9 @@ final class CoreThemeKernel extends Kernel
     public function build(ContainerBuilder $containerBuilder): void
     {
         $containerBuilder->addCompilerPass(new RegisterListenersPass());
+        $containerBuilder->addCompilerPass(new ManagerPass());
+        $containerBuilder->addCompilerPass(new WpCommandPass());
+        $containerBuilder->addCompilerPass(new WpScreenPass());
     }
 
     /**
