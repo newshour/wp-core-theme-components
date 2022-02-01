@@ -7,9 +7,12 @@
 namespace NewsHour\WPCoreThemeComponents\DependencyInjection\Compiler;
 
 use InvalidArgumentException;
-use NewsHour\WPCoreThemeComponents\Admin\Screens\ScreenInterface;
+use ReflectionClass;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
+use NewsHour\WPCoreThemeComponents\Admin\Screens\ScreenInterface;
 
 class WpScreenPass implements CompilerPassInterface
 {
@@ -52,22 +55,47 @@ class WpScreenPass implements CompilerPassInterface
                 );
             }
 
-            if (!$reflector->hasConstant('SCREEN_ID')) {
+            $screenId = $this->getScreenId($reflector, $definition);
+
+            if (empty($screenId)) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Service "%s" must set class constant: `SCREEN_ID`',
+                        //phpcs:ignore
+                        'Service "%s" must define a valid screen identifier, either in the service configuration as an argument (`$screenId`) or as a class constant (`%s::SCREEN_ID`).',
                         $id,
+                        ScreenInterface::class,
                         ScreenInterface::class
                     )
                 );
             }
 
-            $screenId = $reflector->getConstant('SCREEN_ID');
             $underscored = preg_replace('/[\s\-]+/', '_', $screenId);
             $container->setAlias('wp.screen.' . $underscored, $id)->setPublic(true);
             $screens[] = $screenId;
         }
 
         $container->setParameter('registered_wp_screen_ids', $screens);
+    }
+
+    /**
+     * Determine the mapped screen ID.
+     *
+     * @param ReflectionClass $reflector
+     * @param Definition $definition
+     * @return string
+     */
+    private function getScreenId(ReflectionClass $reflector, Definition $definition): string
+    {
+        if ($reflector->hasConstant('SCREEN_ID')) {
+            return $reflector->getConstant('SCREEN_ID');
+        }
+
+        try {
+            return $definition->getArgument('$screenId');
+        } catch (OutOfBoundsException $obe) {
+            // pass
+        }
+
+        return '';
     }
 }
