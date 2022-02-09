@@ -12,6 +12,7 @@ use Throwable;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +52,10 @@ final class CoreThemeKernel extends Kernel
      */
     public static function create(string $environment, bool $debug): self
     {
+        if ($debug) {
+            Debug::enable();
+        }
+
         $kernel = new CoreThemeKernel($environment, $debug);
         $kernel->boot();
         restore_error_handler();
@@ -126,7 +131,7 @@ final class CoreThemeKernel extends Kernel
             $container->addObjectResource($this);
             $container->fileExists($this->getBundlesPath());
 
-            $fileTypes = ['yaml', 'xml', 'php'];
+            $fileTypes = ['yaml', 'yml', 'xml', 'php'];
 
             foreach ($fileTypes as $type) {
                 $this->import(
