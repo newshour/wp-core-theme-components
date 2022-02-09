@@ -58,6 +58,17 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
+// Load the Wordpress environment.
+if (!file_exists(ABSPATH . 'wp-load.php')) {
+    echo 'wp-load.php not found. Looked in ' . ABSPATH . '.' . PHP_EOL;
+    exit(1);
+}
+
+define('WP_USE_THEMES', false);
+global $wp, $wp_query, $wp_the_query, $wp_rewrite, $wp_did_header, $table_prefix;
+include_once ABSPATH . 'wp-load.php';
+
+// Load kernel and console app.
 $kernel = CoreThemeKernel::create($_SERVER['WP_ENV'], $_SERVER['APP_DEBUG']);
 $application = new Application($kernel);
 $application->run($input);
