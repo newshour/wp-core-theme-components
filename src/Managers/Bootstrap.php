@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use Twig\Environment;
 use Twig\TwigFunction;
 use NewsHour\WPCoreThemeComponents\Admin\Screens\ContainerScreenResolver;
+use NewsHour\WPCoreThemeComponents\Components\AdminNotification;
 use NewsHour\WPCoreThemeComponents\Containers\ContainerFactory;
 use NewsHour\WPCoreThemeComponents\Utilities;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -53,6 +54,7 @@ class Bootstrap extends Manager implements ContainerAwareInterface
 
         if (is_admin()) {
             add_filter('current_screen', [$this, 'registerAdminScreens']);
+            add_filter('current_screen', fn () => AdminNotification::flashMessage(), 999);
         }
     }
 
