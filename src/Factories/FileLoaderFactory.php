@@ -25,6 +25,7 @@ final class FileLoaderFactory
     {
         switch ($type) {
             case 'yaml':
+            case 'yml':
                 return new YamlFileLoader($container, $locator);
 
             case 'xml':
