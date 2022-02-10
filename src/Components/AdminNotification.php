@@ -31,8 +31,11 @@ class AdminNotification
      * @param boolean $flash Default is false.
      * @return void
      */
-    public static function message(string $message = '', string $type = AdminNotification::MESSAGE_TYPE_INFO, $flash = false): void
-    {
+    public static function message(
+        string $message = '',
+        string $type = AdminNotification::MESSAGE_TYPE_INFO,
+        $flash = false
+    ): void {
         $types = [
             self::MESSAGE_TYPE_ERROR,
             self::MESSAGE_TYPE_INFO,
