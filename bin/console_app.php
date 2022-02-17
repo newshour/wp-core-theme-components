@@ -1,9 +1,13 @@
 <?php
 
-use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
+/**
+ * @version 1.0.0
+ */
+
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\ErrorHandler\Debug;
+use NewsHour\WPCoreThemeComponents\Console\CoreThemeApplication;
+use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
     echo 'Warning: The console should be invoked via the CLI version of PHP, not the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
@@ -58,17 +62,19 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-// Load the Wordpress environment.
-if (!file_exists(ABSPATH . 'wp-load.php')) {
-    echo 'wp-load.php not found. Looked in ' . ABSPATH . '.' . PHP_EOL;
-    exit(1);
-}
+// Load the Wordpress environment if requested.
+if ($input->hasParameterOption(['--with-wordpress'], true)) {
+    if (!file_exists(ABSPATH . 'wp-load.php')) {
+        echo 'wp-load.php not found. Looked in ' . ABSPATH . '.' . PHP_EOL;
+        exit(1);
+    }
 
-define('WP_USE_THEMES', false);
-global $wp, $wp_query, $wp_the_query, $wp_rewrite, $wp_did_header, $table_prefix;
-include_once ABSPATH . 'wp-load.php';
+    define('WP_USE_THEMES', false);
+    global $wp, $wp_query, $wp_the_query, $wp_rewrite, $wp_did_header, $table_prefix;
+    include_once ABSPATH . 'wp-load.php';
+}
 
 // Load kernel and console app.
 $kernel = CoreThemeKernel::create($_SERVER['WP_ENV'], $_SERVER['APP_DEBUG']);
-$application = new Application($kernel);
+$application = new CoreThemeApplication($kernel);
 $application->run($input);
