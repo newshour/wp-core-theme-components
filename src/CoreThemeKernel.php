@@ -58,7 +58,7 @@ final class CoreThemeKernel extends Kernel
 
         $kernel = new CoreThemeKernel($environment, $debug);
         $kernel->boot();
-        restore_error_handler();
+
         return $kernel;
     }
 
