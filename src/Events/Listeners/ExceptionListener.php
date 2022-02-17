@@ -49,7 +49,20 @@ class ExceptionListener
         // as the response body.
         if (function_exists('wp_die')) {
             ob_start();
-            wp_die($e->getMessage(), 'Error', ['response' => $statusCode, 'exit' => false]);
+
+            $message = sprintf(
+                '%s in <b>%s</b> on line <b>%s</b>',
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            );
+
+            wp_die(
+                $message,
+                'Error',
+                ['response' => $statusCode, 'exit' => false]
+            );
+
             $content = ob_get_contents();
             ob_end_clean();
         }
