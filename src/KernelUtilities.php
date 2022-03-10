@@ -45,7 +45,6 @@ final class KernelUtilities
      */
     public function exitOnError($message, $title, $statusCode = 500): void
     {
-
         $this->kernel->shutdown();
 
         if (function_exists('wp_die')) {
