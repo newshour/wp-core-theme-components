@@ -9,6 +9,7 @@ namespace NewsHour\WPCoreThemeComponents\Annotations;
 /**
  * Provides an annotation for controller methods to check for logged in users. If a capability is
  * passed to the constructor, the annotation will also check if the user has the capability.
+ * Status codes (`$statusCode`) and redirect locations (`$next`) may also be passed as well.
  *
  * @Annotation
  * @NamedArgumentConstructor
@@ -16,21 +17,47 @@ namespace NewsHour\WPCoreThemeComponents\Annotations;
 final class LoginRequired
 {
     private string $capability = '';
+    private string $next = '';
+    private int $statusCode = 403;
 
     /**
      * @param string $capability
+     * @param integer $statusCode
+     * @param string $next
      */
-    public function __construct($capability = '')
+    public function __construct($capability = '', $statusCode = 403, $next = '')
     {
         $this->capability = (string) $capability;
+        $this->next = (string) $next;
+        $this->statusCode = (int) $statusCode;
     }
 
     /**
+     * Returns the WP capability string.
+     *
      * @return string
      */
     public function getCapability(): string
     {
         return $this->capability;
+    }
+
+    /**
+     * Returns a redirect location.
+     *
+     * @return string
+     */
+    public function getNext(): string
+    {
+        return $this->next;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
     }
 
     /**
