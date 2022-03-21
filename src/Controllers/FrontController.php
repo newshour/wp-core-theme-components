@@ -78,31 +78,38 @@ final class FrontController
                 $debug
             );
 
-            // LoginRequired annotations.
-            $classLoginRequired = $reader->getClassAnnotation(
+            // LoginRequired annotations. Check class annotation, then method.
+            $loginRequiredObj = $reader->getClassAnnotation(
                 $reflectedClass,
                 LoginRequired::class
             );
 
-            $methodLoginRequired = $reader->getMethodAnnotation(
-                $reflectedClass->getMethod($method),
-                LoginRequired::class
-            );
-
-            $accessForbidden = false;
-
-            // Check class annotation, then method.
-            if ($classLoginRequired !== null && !$classLoginRequired->validateUser()) {
-                $accessForbidden = true;
-            } elseif ($methodLoginRequired !== null && !$methodLoginRequired->validateUser()) {
-                $accessForbidden = true;
+            if ($loginRequiredObj == null) {
+                $loginRequiredObj = $reader->getMethodAnnotation(
+                    $reflectedClass->getMethod($method),
+                    LoginRequired::class
+                );
             }
 
-            if ($accessForbidden) {
+            if ($loginRequiredObj !== null && !$loginRequiredObj->validateUser()) {
+                if (!empty($loginRequiredObj->getNext())) {
+                    wp_safe_redirect(
+                        $loginRequiredObj->getNext()
+                    );
+
+                    exit;
+                }
+
+                $statusTextMsg = sprintf(
+                    '%s %s',
+                    $loginRequiredObj->getStatusCode(),
+                    Response::$statusTexts[$loginRequiredObj->getStatusCode()] ?? 'unknown status'
+                );
+
                 KernelUtilities::create($kernel, $request)->exitOnError(
-                    '403 Access Forbidden',
+                    $statusTextMsg,
                     'Error',
-                    405
+                    $loginRequiredObj->getStatusCode()
                 );
             }
 
