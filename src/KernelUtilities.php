@@ -47,8 +47,17 @@ final class KernelUtilities
     {
         $this->kernel->shutdown();
 
+        if ($statusCode == 404 && function_exists('get_query_template')) {
+            status_header(404);
+            nocache_headers();
+
+            if (!empty($template = get_query_template('404'))) {
+                include $template;
+                exit;
+            }
+        }
+
         if (function_exists('wp_die')) {
-            $this->kernel->shutdown();
             remove_all_filters('status_header'); // Clear this filter chain so nothing overrides the status code.
             wp_die($message, $title, ['response' => $statusCode]);
         }
