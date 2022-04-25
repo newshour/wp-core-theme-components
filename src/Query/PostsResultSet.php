@@ -145,7 +145,7 @@ final class PostsResultSet implements ResultSet
         $this->immutables['foundRows'] = empty($queryObj->found_rows) ? count($this->data) : (int) $queryObj->found_rows;
 
         if ($useCache && count($this->data) > 0) {
-            wp_cache_set($cacheKey, $this->data, $cacheGroup);
+            wp_cache_set($cacheKey, $this->data, $cacheGroup, $this->cacheInSeconds);
         }
 
         return $this->data;
