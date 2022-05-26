@@ -108,7 +108,7 @@ class BaseContext implements ArrayAccess, Context, Countable
      * @param  mixed $offset
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
@@ -118,7 +118,7 @@ class BaseContext implements ArrayAccess, Context, Countable
      * @param  mixed $value
      * @return void
      */
-    public function set($key, $value = '')
+    public function set($key, $value = ''): void
     {
         $this->offsetSet($key, $value);
     }
