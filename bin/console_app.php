@@ -14,10 +14,11 @@ if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
 }
 
 $baseDir = '';
+$binDir = isset($GLOBALS['_composer_bin_dir']) ? $GLOBALS['_composer_bin_dir'] : dirname(__FILE__);
 
 for ($x = 2; $x < 6; $x++) {
-    $checkDir = dirname(__FILE__, $x);
-    if (file_exists(dirname(__FILE__, $x) . '/vendor/autoload.php')) {
+    $checkDir = dirname($binDir, $x);
+    if (file_exists($checkDir . '/vendor/autoload.php')) {
         $baseDir = $checkDir;
         break;
     }
@@ -33,7 +34,7 @@ include_once $baseDir . '/vendor/autoload.php';
 $configDir = $baseDir . '/config';
 
 if (!file_exists($configDir . '/application.php')) {
-    echo 'config/application.php not found. Looked in ' . $dir . '.' . PHP_EOL;
+    echo 'config/application.php not found. Looked in ' . $configDir . '.' . PHP_EOL;
     exit(1);
 }
 
