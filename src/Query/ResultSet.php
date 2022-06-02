@@ -81,9 +81,9 @@ interface ResultSet extends Countable
     /**
      * Retrieve only the first result. This method will hit the database.
      *
-     * @return array
+     * @return mixed
      */
-    public function first(): array;
+    public function first(): mixed;
 
     /**
      * Returns a slice of the collection starting at the given index.

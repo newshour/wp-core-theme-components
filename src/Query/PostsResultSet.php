@@ -267,11 +267,13 @@ final class PostsResultSet implements ResultSet
      * Retrieve only the first result. This method will hit the database.
      *
      * @category Database Read
-     * @return array
+     * @return mixed
      */
-    public function first(): array
+    public function first(): mixed
     {
-        return $this->limit(1)->get();
+        $result = $this->limit(1)->get();
+
+        return isset($result[0]) ? $result[0] : null;
     }
 
     /**
