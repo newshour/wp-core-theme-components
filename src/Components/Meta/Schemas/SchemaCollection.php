@@ -22,7 +22,7 @@ class SchemaCollection extends SplObjectStorage
      * @throws InvalidArgumentException
      * @return void
      */
-    public function attach($object, $info = null)
+    public function attach($object, $info = null): void
     {
         if (!($object instanceof Schema)) {
             throw new InvalidArgumentException("Object is not of type Schema.");
