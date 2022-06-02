@@ -59,5 +59,11 @@
         "issues": "https://github.com/newshour/wp-core-theme-components/issues",
         "source": "https://github.com/newshour/wp-core-theme-components",
         "docs": "https://newshour.github.io/wp-core-theme-components-docs/"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "roots/wordpress-core-installer": true
+        }
     }
 }
