@@ -144,6 +144,7 @@ abstract class Controller implements ServiceSubscriberInterface
     {
         if (!is_file($file)) {
             wp_die('File Not Found', 'File Not Found', ['response' => 404]);
+            exit;
         }
 
         $response = new BinaryFileResponse($file);
@@ -203,13 +204,50 @@ abstract class Controller implements ServiceSubscriberInterface
     }
 
     /**
+     * Renders a string and returns a Response object.
+     *
+     * @param string $str
+     * @param array $kwargs
+     * @return Response|null
+     */
+    public function renderString(string $str, array $kwargs = []): ?Response
+    {
+        $statusCode = empty($kwargs['status_code']) ? http_response_code() : $kwargs['status_code'];
+
+        $headers = array_merge(
+            $this->getQueuedHeaders(),
+            empty($kwargs['headers']) ? [] : $kwargs['headers']
+        );
+
+        if (!Utilities::hasKey('Content-Type', $headers)) {
+            $headers['Content-Type'] = 'text/plain';
+
+            if (strtolower(substr($str, 0, 4)) == '<html') {
+                $headers['Content-Type'] = 'text/html; charset=' . get_option('blog_charset');
+            }
+        }
+
+        try {
+            // Build the response.
+            $response = $this->getResponse();
+            $response->setContent($str);
+            $response->setStatusCode($statusCode);
+            $response->headers->add($headers);
+
+            return $response;
+        } catch (InvalidArgumentException $iae) {
+            trigger_error($iae);
+        }
+    }
+
+    /**
      * Redirect to a URL. Call the internal Wordpress function 'wp_safe_redirect'.
      *
      * @param string $url
      * @param integer $statusCode
      * @return void
      */
-    public function redirect(string $url, int $statusCode = 302)
+    public function redirect(string $url, int $statusCode = 302): void
     {
         wp_safe_redirect($url, $statusCode, '');
         exit;
