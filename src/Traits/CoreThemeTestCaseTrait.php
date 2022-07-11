@@ -4,13 +4,15 @@
  * @version 1.0.0
  */
 
-namespace NewsHour\WPCoreThemeComponents;
+namespace NewsHour\WPCoreThemeComponents\Traits;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use NewsHour\WPCoreThemeComponents\CoreThemeKernel;
 
-class CoreThemeTestCase extends KernelTestCase
+trait CoreThemeTestCaseTrait
 {
     /**
+     * Boots the CoreThemeKernel for testing.
+     *
      * @param array $options
      * @return KernelInterface
      */
@@ -32,6 +34,9 @@ class CoreThemeTestCase extends KernelTestCase
 
         include_once $appEnv;
 
-        return CoreThemeKernel::create('test', WP_DEBUG);
+        $environment = $options['environment'] ?? 'test';
+        $debug = $options['environment'] ?? WP_DEBUG;
+
+        return CoreThemeKernel::create($environment, $debug);
     }
 }
