@@ -31,5 +31,9 @@ class ThemeExtension extends Extension
         $resourcesDir = dirname(__FILE__, 2) . '/Resources/config';
         $loader = new PhpFileLoader($container, new FileLocator($resourcesDir));
         $loader->load('services.php');
+
+        if (!empty($configs['test'])) {
+            $loader->load('test.php');
+        }
     }
 }

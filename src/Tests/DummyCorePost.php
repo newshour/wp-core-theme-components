@@ -17,6 +17,24 @@ class DummyCorePost extends CorePost
     }
 
     /**
+     * @param string $format
+     * @return string
+     */
+    public function date($format = 'c'): string
+    {
+        return date($format);
+    }
+
+    /**
+     * @param string $format
+     * @return string
+     */
+    public function modified_date($format = 'c'): string
+    {
+        return date($format);
+    }
+
+    /**
      * @return array
      */
     public function categories(): array
