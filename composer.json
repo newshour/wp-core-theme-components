@@ -45,7 +45,7 @@
     "scripts": {
         "tests": [
             "./vendor/bin/phpunit --bootstrap vendor/autoload.php ./src/Tests",
-            "phpcs --standard=psr12 ./src/"
+            "phpcs --standard=psr12 --ignore=src/Tests/* ./src/"
         ]
     },
     "autoload": {
